@@ -30,6 +30,14 @@
       width: 90%;
       max-width: 600px;
     }
+    /* Toast animation styles */
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-enter {
+      animation: slideIn 0.3s ease forwards;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
