@@ -481,64 +481,64 @@
       }
 
       // Generate MediaWiki code
-      // Continue from the previous HTML file
-document.getElementById('generateWikiCodeBtn').addEventListener('click', function() {
-  if (songData.length === 0) {
-    showToast('No data to generate MediaWiki code', 'error');
-    return;
-  }
-  
-  let wikiCode = '{| class="wikitable datatable" data-page-length="100" data-order=\'[[0, "asc"]]\'\n';
-  wikiCode += '! 順位\n! 動画タイトル\n! 投稿者\n! 動画リンク\n|-\n';
-  
-  songData.forEach(entry => {
-    let utaiteMarkup = '';
-    if (entry.utaiteWiki && entry.utaiteWiki !== entry.utaiteName) {
-      // Has wiki page and it's different from the name
-      utaiteMarkup = `[[${entry.utaiteWiki}|${entry.utaiteName}]]`;
-    } else {
-      // No wiki page or wiki page is the same as name
-      utaiteMarkup = `[[${entry.utaiteName}]]`;
-    }
-    
-    wikiCode += `{{FUCE|${entry.ranking}|${entry.songTitle}|${utaiteMarkup} |${entry.videoId}}}\n`;
-  });
-  
-  wikiCode += '|}';
-  
-  document.getElementById('wikiOutput').value = wikiCode;
-  showToast('MediaWiki code generated successfully');
-});
-
-// Copy button functionality
-document.getElementById('copyBtn').addEventListener('click', function() {
-  const wikiOutput = document.getElementById('wikiOutput');
-  wikiOutput.select();
-  wikiOutput.setSelectionRange(0, 99999); // For mobile devices
-  
-  try {
-    navigator.clipboard.writeText(wikiOutput.value)
-      .then(() => {
-        showToast('Copied to clipboard!');
-      })
-      .catch(err => {
-        console.error('Could not copy text: ', err);
-        // Fallback for older browsers
-        document.execCommand('copy');
-        showToast('Copied to clipboard!');
+      document.getElementById('generateWikiCodeBtn').addEventListener('click', function() {
+        if (songData.length === 0) {
+          showToast('No data to generate MediaWiki code', 'error');
+          return;
+        }
+        
+        let wikiCode = '{| class="wikitable datatable" data-page-length="100" data-order=\'[[0, "asc"]]\'\n';
+        wikiCode += '! 順位\n! 動画タイトル\n! 投稿者\n! 動画リンク\n|-\n';
+        
+        songData.forEach(entry => {
+          let utaiteMarkup = '';
+          if (entry.utaiteWiki && entry.utaiteWiki !== entry.utaiteName) {
+            // Has wiki page and it's different from the name
+            utaiteMarkup = `[[${entry.utaiteWiki}|${entry.utaiteName}]]`;
+          } else {
+            // No wiki page or wiki page is the same as name
+            utaiteMarkup = `[[${entry.utaiteName}]]`;
+          }
+          
+          wikiCode += `{{FUCE|${entry.ranking}|${entry.songTitle}|${utaiteMarkup} |${entry.videoId}}}\n`;
+        });
+        
+        wikiCode += '|}';
+        
+        document.getElementById('wikiOutput').value = wikiCode;
+        showToast('MediaWiki code generated successfully');
       });
-  } catch (err) {
-    console.error('Copy failed: ', err);
-    showToast('Failed to copy to clipboard', 'error');
-  }
-});
+      
+      // Copy button functionality
+      document.getElementById('copyBtn').addEventListener('click', function() {
+        const wikiOutput = document.getElementById('wikiOutput');
+        wikiOutput.select();
+        wikiOutput.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+          navigator.clipboard.writeText(wikiOutput.value)
+            .then(() => {
+              showToast('Copied to clipboard!');
+            })
+            .catch(err => {
+              console.error('Could not copy text: ', err);
+              // Fallback for older browsers
+              document.execCommand('copy');
+              showToast('Copied to clipboard!');
+            });
+        } catch (err) {
+          console.error('Copy failed: ', err);
+          showToast('Failed to copy to clipboard', 'error');
+        }
+      });
+      
+      // Click outside modal to close
+      window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
 
-// Click outside modal to close
-window.addEventListener('click', function(event) {
-  if (event.target === modal) {
-    modal.classList.add('hidden');
-  }
-});
-
-// Initial load - initialize empty table
-updateTable();
+    // Initial load - initialize empty table
+    updateTable();
+  </script>
