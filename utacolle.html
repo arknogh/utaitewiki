@@ -48,9 +48,12 @@
     <div class="mb-8 flex flex-col md:flex-row gap-4 justify-between">
       <div class="w-full md:w-1/2">
         <h2 class="text-xl font-semibold mb-2">Import Data</h2>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button id="load-sample-data" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
             Load Sample Data
+          </button>
+          <button id="import-json" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+            Import JSON
           </button>
           <button id="clear-data" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
             Clear Data
@@ -150,5 +153,6 @@
   </div>
   
   <script src="./utacolle.js"></script>
+  <script src="./utacolle.importjson.js"></script>
 </body>
 </html>
