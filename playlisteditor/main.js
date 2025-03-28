@@ -1,4 +1,66 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Add toaster container to HTML
+    const toasterContainer = document.createElement('div');
+    toasterContainer.id = 'toaster-container';
+    toasterContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+    document.body.appendChild(toasterContainer);
+
+    // Toast notification function
+    function showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        const toastId = 'toast-' + Date.now();
+        toast.id = toastId;
+        
+        // Set toast classes based on type
+        let bgColor, textColor, borderColor;
+        switch (type) {
+            case 'success':
+                bgColor = 'bg-green-100';
+                textColor = 'text-green-800';
+                borderColor = 'border-green-500';
+                break;
+            case 'error':
+                bgColor = 'bg-red-100';
+                textColor = 'text-red-800';
+                borderColor = 'border-red-500';
+                break;
+            case 'warning':
+                bgColor = 'bg-yellow-100';
+                textColor = 'text-yellow-800'; 
+                borderColor = 'border-yellow-500';
+                break;
+            default:
+                bgColor = 'bg-blue-100';
+                textColor = 'text-blue-800';
+                borderColor = 'border-blue-500';
+        }
+        
+        toast.className = `${bgColor} ${textColor} ${borderColor} px-4 py-3 rounded-md shadow-md border-l-4 transform transition-all duration-300 ease-in-out opacity-0 translate-x-full w-72`;
+        toast.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span>${message}</span>
+                <button class="ml-2 text-gray-600 hover:text-gray-800 focus:outline-none" onclick="document.getElementById('${toastId}').remove()">
+                    &times;
+                </button>
+            </div>
+        `;
+        
+        toasterContainer.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.classList.remove('opacity-0', 'translate-x-full');
+        }, 10);
+        
+        // Animate out and remove after duration
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'translate-x-full');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, duration);
+    }
+
     // Data store
     let playlist = [];
     let nextId = 1;
@@ -40,8 +102,14 @@ document.addEventListener('DOMContentLoaded', function() {
     addBtn.addEventListener('click', openAddModal);
     generateBtn.addEventListener('click', generateOutput);
     copyBtn.addEventListener('click', copyToClipboard);
-    clearInputBtn.addEventListener('click', () => { inputText.value = ''; });
-    clearOutputBtn.addEventListener('click', () => { outputText.value = ''; });
+    clearInputBtn.addEventListener('click', () => { 
+        inputText.value = ''; 
+        showToast('Input cleared', 'info');
+    });
+    clearOutputBtn.addEventListener('click', () => { 
+        outputText.value = ''; 
+        showToast('Output cleared', 'info');
+    });
     entryForm.addEventListener('submit', saveEntry);
     modalCancel.addEventListener('click', closeModal);
     deleteCancel.addEventListener('click', closeDeleteModal);
@@ -49,6 +117,13 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', filterEntries);
     yearFilter.addEventListener('change', filterEntries);
     resetFilterBtn.addEventListener('click', resetFilters);
+    
+    const resetAllBtn = document.getElementById('reset-all-btn');
+    if (resetAllBtn) {
+        resetAllBtn.addEventListener('click', resetAll);
+    } else {
+        console.error("Element with id 'reset-all-btn' not found");
+    }
     
     // Parse initial playlist
     function parseInitialPlaylist() {
@@ -85,12 +160,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         renderTable();
         populateYearFilter();
+        showToast('Playlist data loaded successfully', 'success');
     }
     
     // Parse a single entry from the input
     function parseEntry() {
         const text = inputText.value.trim();
-        if (!text) return;
+        if (!text) {
+            showToast('Please enter an entry to parse', 'warning');
+            return;
+        }
         
         try {
             const entry = parseEntryLine(text);
@@ -100,9 +179,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderTable();
                 populateYearFilter();
                 inputText.value = '';
+                showToast('Entry successfully added!', 'success');
             }
         } catch (e) {
-            alert(`Error parsing entry: ${e.message}`);
+            showToast(`Error parsing entry: ${e.message}`, 'error');
         }
     }
     
@@ -363,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         if (!entry.title) {
-            alert('Title is required');
+            showToast('Title is required', 'error');
             return;
         }
         
@@ -373,11 +453,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (index !== -1) {
                 entry.id = id;
                 playlist[index] = entry;
+                showToast(`"${entry.title}" has been updated`, 'success');
             }
         } else {
             // Add new entry
             entry.id = nextId++;
             playlist.push(entry);
+            showToast(`"${entry.title}" has been added`, 'success');
         }
         
         closeModal();
@@ -385,8 +467,25 @@ document.addEventListener('DOMContentLoaded', function() {
         populateYearFilter();
     }
     
-    // Open delete modal
+    // Open delete modal with enhanced information
     function openDeleteModal(id) {
+        const entry = playlist.find(e => e.id === id);
+        if (!entry) return;
+        
+        // Update delete modal with entry information
+        const deleteTitle = document.getElementById('delete-modal-title');
+        const deleteDescription = document.getElementById('delete-modal-description');
+        
+        deleteTitle.textContent = `Delete "${entry.title}"?`;
+        deleteDescription.innerHTML = `
+            <p class="mb-2">You are about to delete the following entry:</p>
+            <div class="bg-gray-100 p-3 rounded mb-4">
+                <p><strong>Title:</strong> ${entry.title}</p>
+                <p><strong>Date:</strong> ${entry.date || 'N/A'}</p>
+            </div>
+            <p class="text-red-600">This action cannot be undone.</p>
+        `;
+        
         deleteEntryId.value = id;
         deleteModal.classList.remove('hidden');
     }
@@ -396,21 +495,25 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteModal.classList.add('hidden');
     }
     
-    // Confirm delete
+    // Confirm delete with toaster notification
     function confirmDelete() {
         const id = parseInt(deleteEntryId.value);
         const index = playlist.findIndex(e => e.id === id);
         
         if (index !== -1) {
+            const deletedEntry = playlist[index];
             playlist.splice(index, 1);
             renderTable();
             populateYearFilter();
+            
+            // Show toast notification
+            showToast(`"${deletedEntry.title}" has been deleted successfully.`, 'success');
         }
         
         closeDeleteModal();
     }
     
-    // Generate output
+    // Generate output with toaster notification
     function generateOutput() {
         // Sort by number
         const sortedPlaylist = [...playlist].sort((a, b) => a.number - b.number);
@@ -451,22 +554,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         output += '}}';
         outputText.value = output;
+        
+        showToast('Output generated successfully', 'success');
     }
     
-    // Copy to clipboard
+    // Copy to clipboard with toaster notification
     function copyToClipboard() {
         outputText.select();
         document.execCommand('copy');
-        
-        // Show feedback
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied!';
-        copyBtn.disabled = true;
-        
-        setTimeout(() => {
-            copyBtn.textContent = originalText;
-            copyBtn.disabled = false;
-        }, 2000);
+        showToast('Output copied to clipboard!', 'success');
     }
     
     // Populate year filter
@@ -501,38 +597,62 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTable();
     }
     
-    // Reset filters
+    // Reset filters with toaster notification
     function resetFilters() {
         searchInput.value = '';
         yearFilter.selectedIndex = 0;
         renderTable();
+        showToast('Filters have been reset', 'info');
     }
-    const resetAllBtn = document.getElementById('reset-all-btn');
     
-    // Check if the element exists before adding an event listener
-    if (resetAllBtn) {
-        resetAllBtn.addEventListener('click', resetAll);
-    } else {
-        console.error("Element with id 'reset-all-btn' not found");
+    // Improved resetAll function with better confirmation
+    function resetAll() {
+        // Create and show the custom confirmation dialog
+        const confirmDialog = document.createElement('div');
+        confirmDialog.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50';
+        confirmDialog.id = 'reset-confirm-dialog';
+        
+        confirmDialog.innerHTML = `
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h2 class="text-xl font-bold mb-4 text-red-600">Reset Everything</h2>
+                <p class="mb-6">This will permanently delete all ${playlist.length} playlist entries. This action cannot be undone.</p>
+                <div class="flex justify-end space-x-2">
+                    <button id="reset-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200">Cancel</button>
+                    <button id="reset-confirm" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">Reset All Data</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmDialog);
+        
+        // Add event listeners to the buttons
+        document.getElementById('reset-cancel').addEventListener('click', () => {
+            document.getElementById('reset-confirm-dialog').remove();
+        });
+        
+        document.getElementById('reset-confirm').addEventListener('click', () => {
+            // Clear the playlist array
+            const entryCount = playlist.length;
+            playlist = [];
+            nextId = 1;
+            
+            // Clear the input and output fields
+            inputText.value = '';
+            outputText.value = '';
+            
+            // Reset filters
+            searchInput.value = '';
+            yearFilter.selectedIndex = 0;
+            
+            // Re-render the table and reset year filter options
+            renderTable();
+            populateYearFilter();
+            
+            // Remove the dialog
+            document.getElementById('reset-confirm-dialog').remove();
+            
+            // Show success toast
+            showToast(`All ${entryCount} playlist entries have been reset.`, 'success');
+        });
     }
 });
-
-function resetAll() {
-    if (confirm('Are you sure you want to reset everything? This will clear all playlist entries and cannot be undone.')) {
-        // Clear the playlist array
-        playlist = [];
-        nextId = 1;
-        
-        // Clear the input and output fields
-        inputText.value = '';
-        outputText.value = '';
-        
-        // Reset filters
-        searchInput.value = '';
-        yearFilter.selectedIndex = 0;
-        
-        // Re-render the table and reset year filter options
-        renderTable();
-        populateYearFilter();
-    }
-}
