@@ -253,6 +253,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         });
         
+        // Check if playlist is empty
+        if (filteredPlaylist.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = `<td colspan="7" class="py-8 text-center text-gray-500 italic">No playlist entries found. Add new entries using the form above.</td>`;
+            playlistTable.appendChild(emptyRow);
+            return;
+        }
+        
         // Sort by number
         filteredPlaylist.sort((a, b) => a.number - b.number);
         
