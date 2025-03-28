@@ -27,6 +27,10 @@
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-600">Utaite Wiki CSS Database</h1>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+            <p class="font-bold">Note about CORS</p>
+            <p>This app uses a CORS proxy (corsproxy.io) to fetch CSS content from utaite.fandom.com. If you encounter issues, you may need to try a different proxy or host this app on your own server.</p>
+        </div>
         
         <div class="mb-6 bg-white p-4 rounded-lg shadow">
             <div class="mb-4">
@@ -138,6 +142,7 @@
                 
                 try {
                     // API URL to get all pages in MediaWiki namespace with .css extension
+                    // Using origin=* parameter which Fandom/MediaWiki API supports for CORS
                     const apiUrl = 'https://utaite.fandom.com/api.php?action=query&list=allpages&apnamespace=8&apfrom=&aplimit=500&format=json&origin=*&apfilterredir=nonredirects';
                     
                     const response = await fetch(apiUrl);
@@ -241,11 +246,13 @@
                     return;
                 }
                 
-                // Otherwise, fetch the content
+                // Otherwise, fetch the content using a CORS proxy
                 setLoading(true, `Loading ${fileToLoad.title}...`);
                 
                 try {
-                    const response = await fetch(fileToLoad.rawUrl);
+                    // Using a CORS proxy to bypass the CORS restriction
+                    const corsProxy = 'https://corsproxy.io/?';
+                    const response = await fetch(corsProxy + encodeURIComponent(fileToLoad.rawUrl));
                     if (!response.ok) throw new Error(`Failed to fetch ${fileToLoad.title}`);
                     
                     const cssContent = await response.text();
