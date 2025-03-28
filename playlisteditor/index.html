@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Playlist CRUD Interface</title>
+    <title>Playlist Template Transclusion Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .entry-row:hover {
@@ -16,9 +16,9 @@
 </head>
 <body class="bg-gray-100 p-6">
     <div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-2xl font-bold mb-6 text-center">Playlist Manager</h1>
+        <h1 class="text-2xl font-bold mb-6 text-center">Playlist Template Transclusion Builder</h1>
         
-        <!-- Input text box -->
+        <!-- Input text box (not needed)
         <div class="mb-6">
             <label for="input-text" class="block text-sm font-medium text-gray-700 mb-2">Input:</label>
             <textarea id="input-text" class="w-full h-32 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
@@ -26,7 +26,7 @@
                 <button id="parse-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Parse Entry</button>
                 <button id="clear-input-btn" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Clear</button>
             </div>
-        </div>
+        </div> -->
         
         <!-- CRUD Controls -->
         <div class="flex mb-4 justify-between items-center">
@@ -34,6 +34,7 @@
             <div>
                 <button id="add-btn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">Add New</button>
                 <button id="generate-btn" class="ml-2 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md">Generate Output</button>
+                <button id="reset-all-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md ml-2">Reset All</button>
             </div>
         </div>
         
