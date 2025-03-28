@@ -66,13 +66,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let nextId = 1;
     
     // DOM elements
-    const inputText = document.getElementById('input-text');
+    //const inputText = document.getElementById('input-text');
     const outputText = document.getElementById('output-text');
-    const parseBtn = document.getElementById('parse-btn');
+    //const parseBtn = document.getElementById('parse-btn');
     const addBtn = document.getElementById('add-btn');
     const generateBtn = document.getElementById('generate-btn');
     const copyBtn = document.getElementById('copy-btn');
-    const clearInputBtn = document.getElementById('clear-input-btn');
+    // const clearInputBtn = document.getElementById('clear-input-btn');
     const clearOutputBtn = document.getElementById('clear-output-btn');
     const playlistTable = document.getElementById('playlist-table');
     const entryModal = document.getElementById('entry-modal');
@@ -98,14 +98,14 @@ document.addEventListener('DOMContentLoaded', function() {
     parseInitialPlaylist();
     
     // Event Listeners
-    parseBtn.addEventListener('click', parseEntry);
+    // parseBtn.addEventListener('click', parseEntry);
     addBtn.addEventListener('click', openAddModal);
     generateBtn.addEventListener('click', generateOutput);
     copyBtn.addEventListener('click', copyToClipboard);
-    clearInputBtn.addEventListener('click', () => { 
-        inputText.value = ''; 
-        showToast('Input cleared', 'info');
-    });
+    // clearInputBtn.addEventListener('click', () => { 
+    //     inputText.value = ''; 
+    //     showToast('Input cleared', 'info');
+    // });
     clearOutputBtn.addEventListener('click', () => { 
         outputText.value = ''; 
         showToast('Output cleared', 'info');
