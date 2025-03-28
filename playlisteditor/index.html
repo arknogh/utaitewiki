@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist CRUD Interface</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <style>
+        .entry-row:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-center">Playlist Manager</h1>
+        
+        <!-- Input text box -->
+        <div class="mb-6">
+            <label for="input-text" class="block text-sm font-medium text-gray-700 mb-2">Input:</label>
+            <textarea id="input-text" class="w-full h-32 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+            <div class="flex justify-end mt-2">
+                <button id="parse-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Parse Entry</button>
+                <button id="clear-input-btn" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Clear</button>
+            </div>
+        </div>
+        
+        <!-- CRUD Controls -->
+        <div class="flex mb-4 justify-between items-center">
+            <h2 class="text-xl font-semibold">Playlist Entries</h2>
+            <div>
+                <button id="add-btn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">Add New</button>
+                <button id="generate-btn" class="ml-2 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md">Generate Output</button>
+            </div>
+        </div>
+        
+        <!-- Filter Controls -->
+        <div class="flex mb-4 space-x-2">
+            <input type="text" id="search-input" placeholder="Search..." class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select id="year-filter" class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Years</option>
+            </select>
+            <button id="reset-filter-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Reset Filters</button>
+        </div>
+        
+        <!-- CRUD Table -->
+        <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white border border-gray-300 shadow-sm rounded-md">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700">
+                        <th class="py-3 px-4 text-left border-b">#</th>
+                        <th class="py-3 px-4 text-left border-b">Title</th>
+                        <th class="py-3 px-4 text-left border-b">YouTube</th>
+                        <th class="py-3 px-4 text-left border-b">NND</th>
+                        <th class="py-3 px-4 text-left border-b">Date</th>
+                        <th class="py-3 px-4 text-left border-b">Additional Info</th>
+                        <th class="py-3 px-4 text-center border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="playlist-table">
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Output text box -->
+        <div>
+            <label for="output-text" class="block text-sm font-medium text-gray-700 mb-2">Output:</label>
+            <textarea id="output-text" class="w-full h-48 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly></textarea>
+            <div class="flex justify-end mt-2">
+                <button id="copy-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Copy to Clipboard</button>
+                <button id="clear-output-btn" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Clear</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit/Add Modal -->
+    <div id="entry-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+            <h2 id="modal-title" class="text-xl font-bold mb-4">Edit Entry</h2>
+            <form id="entry-form">
+                <input type="hidden" id="entry-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="entry-number" class="block text-sm font-medium text-gray-700 mb-1">Entry Number:</label>
+                        <input type="number" id="entry-number" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="entry-title" class="block text-sm font-medium text-gray-700 mb-1">Title:</label>
+                        <input type="text" id="entry-title" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="entry-youtube" class="block text-sm font-medium text-gray-700 mb-1">YouTube ID:</label>
+                        <input type="text" id="entry-youtube" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="entry-nnd" class="block text-sm font-medium text-gray-700 mb-1">NND ID:</label>
+                        <input type="text" id="entry-nnd" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="entry-date" class="block text-sm font-medium text-gray-700 mb-1">Date (YYYY.MM.DD):</label>
+                        <input type="text" id="entry-date" class="w-full p-2 border border-gray-300 rounded-md" pattern="\d{4}\.\d{2}\.\d{2}" placeholder="YYYY.MM.DD">
+                    </div>
+                    <div>
+                        <label for="entry-additional" class="block text-sm font-medium text-gray-700 mb-1">Additional Info:</label>
+                        <input type="text" id="entry-additional" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="modal-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Cancel</button>
+                    <button type="submit" id="modal-save" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <p class="mb-6">Are you sure you want to delete this entry? This action cannot be undone.</p>
+            <input type="hidden" id="delete-entry-id">
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="delete-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Cancel</button>
+                <button type="button" id="delete-confirm" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data store
+            let playlist = [];
+            let nextId = 1;
+            
+            // DOM elements
+            const inputText = document.getElementById('input-text');
+            const outputText = document.getElementById('output-text');
+            const parseBtn = document.getElementById('parse-btn');
+            const addBtn = document.getElementById('add-btn');
+            const generateBtn = document.getElementById('generate-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const clearInputBtn = document.getElementById('clear-input-btn');
+            const clearOutputBtn = document.getElementById('clear-output-btn');
+            const playlistTable = document.getElementById('playlist-table');
+            const entryModal = document.getElementById('entry-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const entryForm = document.getElementById('entry-form');
+            const entryId = document.getElementById('entry-id');
+            const entryNumber = document.getElementById('entry-number');
+            const entryTitle = document.getElementById('entry-title');
+            const entryYoutube = document.getElementById('entry-youtube');
+            const entryNnd = document.getElementById('entry-nnd');
+            const entryDate = document.getElementById('entry-date');
+            const entryAdditional = document.getElementById('entry-additional');
+            const modalCancel = document.getElementById('modal-cancel');
+            const deleteModal = document.getElementById('delete-modal');
+            const deleteEntryId = document.getElementById('delete-entry-id');
+            const deleteCancel = document.getElementById('delete-cancel');
+            const deleteConfirm = document.getElementById('delete-confirm');
+            const searchInput = document.getElementById('search-input');
+            const yearFilter = document.getElementById('year-filter');
+            const resetFilterBtn = document.getElementById('reset-filter-btn');
+            
+            // Parse raw playlist data from the provided text
+            parseInitialPlaylist();
+            
+            // Event Listeners
+            parseBtn.addEventListener('click', parseEntry);
+            addBtn.addEventListener('click', openAddModal);
+            generateBtn.addEventListener('click', generateOutput);
+            copyBtn.addEventListener('click', copyToClipboard);
+            clearInputBtn.addEventListener('click', () => { inputText.value = ''; });
+            clearOutputBtn.addEventListener('click', () => { outputText.value = ''; });
+            entryForm.addEventListener('submit', saveEntry);
+            modalCancel.addEventListener('click', closeModal);
+            deleteCancel.addEventListener('click', closeDeleteModal);
+            deleteConfirm.addEventListener('click', confirmDelete);
+            searchInput.addEventListener('input', filterEntries);
+            yearFilter.addEventListener('change', filterEntries);
+            resetFilterBtn.addEventListener('click', resetFilters);
+            
+            // Parse initial playlist
+            function parseInitialPlaylist() {
+                const playlistData = `{{Playlist|content = 
+# "Zetsubou-Sensei ga Jisatsu Shinai" {{nnd|sm1459793}} (2007.11.05) '''(Deleted)'''
+# "Kumikyoku" {{nnd|sm1635041}} (2007.11.27) '''(Deleted)'''
+# "Zetsubou-Sensei mitai kanji de Zettsubou" {{yt|Z8CdxZ_NRdY}} {{nnd|sm1751989}} (2007.12.11)
+# "MAD No Zetsubou" {{nnd|sm1789366}} (MAD's Despair) (2007.12.16)
+# "Zesshou wo uP Suru Kimochi Ni Kae" {{nnd|sm1839378}} (2007.12.22)
+# "Zessei Bijin" {{yt|QIZ--XtYLI0}} {{nnd|sm1918126}} (Absolute Beauty) (2007.12.31) '''(YT Video Deleted)'''
+# "Mc. Donald wa Dance ni Muchuu nano ka?" {{yt|5byhnwcGjUA}} {{nnd|sm2000680}} (2008.01.10)
+# "Sukoshi Itoshiki Fuumina Kuusou Rumba + α" {{yt|YpxC1fjJxJo}} {{nnd|sm2171850}} feat. Limone-Sensei and [[ONO]] (2008.01.29) '''(Deleted)'''
+# "Nico Nico Douga Urakumikyoku" {{nnd|sm2226999}} (2008.02.04) '''(Deleted)'''
+# "FIVE LEAF" {{yt|IsmVAv9bU2o}} {{nnd|sm2317098}} (2008.02.13) '''(YT Video Deleted)'''
+# "Danjo" {{yt|oc3ht5J9u3A}} {{nnd|sm2376149}} (2008.02.19)
+# "Yuki, Muon, Madobe ni Te." {{nnd|nm2706250}} (Snow, Silence, by the Window.) (2008.03.19)
+# "Ievan Polkka" {{yt|wkes6j1q5V8}} {{nnd|sm2759599}} (2008.03.23)
+# "U.N. Owen wa Kumikyoku Nico Nico Douga na no Ka?" {{nnd|sm2826931}} (2008.03.29)
+# "Kumikyoku Nico Nico Douga" {{nnd|sm2851548}} (2008.03.31)
+# "Zetsubou-MAD JOINT" {{nnd|sm2966709}} (2008.04.11)
+# "Nico Nico Douga Ryuuseigun" {{nnd|sm2988082}} (2008.04.13)
+# "Cho www Rap He No Michi ww" {{yt|MK2KMbTfors}} {{nnd|sm3044453}} feat. Limone-Sensei, [[Rap-bit]] and [[Kunikida]] (2008.04.19)
+# "Nico Nico Douga Ryuuseigun" {{nnd|sm3054860}} (2008.04.20)
+# "Yu-Gi-Oh! BGM Dark Magician" {{nnd|sm3162552}} (2008.05.01)
+# "Nico Nico Douga Miro" {{nnd|sm3264688}} (2008.05.10)
+# "Zetsubou desho desho" {{nnd|sm3310376}} (2008.05.14)
+# "Zetsubou desho desho" {{nnd|sm3347065}} (full)" (2008.05.17)
+# "Ievan Polka (101 singers collab)" {{nnd|sm3347566}} (2008.05.17) '''(Deleted)'''
+# "Ikemen Break Kougyou" {{yt|9eHF8-YL3sM}} {{nnd|sm3577715}} (2008.06.06) '''(YT Video Deleted)'''
+# "Seiko Densetsu 2 (Seiken 2 x Kiwami)" {{nnd|sm3628440}} (2008.06.11)
+# "Ura no Ura Ongakusai" {{nnd|sm3717376}} (2008.06.21)
+# "Ore no Road-Roller!" {{nnd|sm3800205}} feat. Limone-Sensei and [[Harumaki]] (2008.06.28)
+# "Hikyou Sentai Urotander" {{nnd|sm4056567}} (Mean Force Urotander) (2008.07.23)
+# "Black Rock★Shooter" {{yt|yFXni6Nj8QI}} {{nnd|sm4099540}}　(2008.07.27)
+# "Gekokujou" {{yt|lZ_HPNGFteQ}} {{nnd|sm4162359}} (Revolution) (2008.08.02)
+# "Ability To Stir The Audience" {{nnd|sm4178407}} (2008.08.04)
+# "Yield" {{nnd|sm4610811}} (2008.09.13)
+# "Saisoku Saikou Shuttergirl" {{nnd|sm4615269}} (The Fastest Highest Shutter Girl) feat. Limone-Sensei and [[Hanagoe]] (2008.09.13) '''(Privated)'''
+# "Veda is Mine" {{nnd|sm4623935}} (2008.09.14)
+# "Dancing☆Samurai" {{yt|F-l-HGlACHQ}} {{nnd|sm4677621}} (2008.09.19)
+# "Sayonara Zetsubou Ryuuseigun" {{nnd|sm4841416}} (2008.10.05)
+# "Cheeta man" {{nnd|sm5044087}} feat. Limone-Sensei and [[Kettaro]] (2008.10.25)
+# "Gocchani!" {{nnd|sm6257028}} (2009.02.24)
+# "Saihate" {{yt|ba3kJdjpxv0}} {{nnd|sm6305443}} (2009.03.01) '''(YT Video Deleted)'''
+# "Natsu Yuzora" {{nnd|sm6628498}} (2009.04.02)
+# "Double Lariat" {{nnd|sm6938564}} (2009.05.03)
+# "Super Hako Motherfucker" {{yt|r36QGwOVTeA}} {{nnd|sm7011097}} feat. Limone-Sensei and [[Shita]] (2009.05.10)
+# "Jingoku Shoujo Ni Buryoku Kainyuu Shita" {{nnd|sm7246265}} (2009.06.04)
+# "ZOU" {{nnd|sm7754041}} (2009.07.26)
+# "Kurayami Shinjuu Soushi Souai" {{yt|Sah2YmotssU}} {{nnd|sm8135091}} (2009.09.04)
+# "Dango Daikazoku" {{nnd|sm8327831}} (2009.09.24) '''(Deleted)'''
+# "Oppai Oppai-Mime MimexHiroshi Kamiya" {{yt|36SSyrWJUK4}} {{nnd|sm8689096}} (2009.11.02)
+# "Homosapiens Rapsody" {{nnd|sm9236346}} (2009.12.29)
+# "Toeto" {{yt|UuJWnLBKOTE}} {{nnd|sm9516615}} (2010.01.27)
+# "Ringo Mogire Beam Rap" {{yt|T8UngAkCsQQ}} {{nnd|sm9525715}} feat. Limone-Sensei and [[Rap-bit]] (2010.01.28)
+# "Orihara Izaya to Shizuo no Gourmet Race" {{yt|ITtTl-7CSLQ}} {{nnd|sm9591136}} (2010.02.03) '''(Deleted)'''
+# "Hito Lovers" {{yt|emMDHqoa6Mw}} {{nnd|sm9748350}} (Ura Omote Lovers Parody) (2010.02.17) '''(YT Video Deleted)'''
+# "Uzaya Circulation" {{yt|nfvZinjiy_g}} {{nnd|sm9910384}} (Renai Circulation Parody) (2010.03.04) '''(YT Video Deleted)'''
+# "Rolling Girl" {{yt|6O7nG_z7sfM}} {{nnd|sm10039922}}　(2010.03.15)
+# "Just Be Friends" {{yt|6YiGyuEwsn8}} {{nnd|sm10159350}} -Wanko ver.- feat. Limone Sensei and [[Rap-bit]] (2010.03.25)
+# "1925" {{yt|xrQuImozKLY}} {{nnd|sm10471609}} (2010.04.22)
+# "Guriguri Megane to Gekkouchuu" {{nnd|sm10776082}} (2010.05.19)
+# "Uzai Kinou" {{yt|RKVWaW69npM}} {{nnd|sm10938669}} (Ochame Kinou/Fukkireta Parody) (2010.06.03)
+# "E? Aa, Sou." {{yt|FUl69ni3pr4}} {{nnd|sm11181147}} (2010.06.25) '''(YT Video Deleted)'''
+# "Uragiri No Yuuyake" {{nnd|nm11302239}} feat. [[Mi-chan]] (vocals), [[【Ren】]] (chorus), Limone-Sensei (talking) (2010.07.06)
+# "Petenshi ga Warau Koro ni" {{yt|jdFU1I9u-YY}} {{nnd|sm11330639}} (When the Crooks Laugh) (2010.07.09)
+# "NICO NICO DISCO" {{nnd|sm11457029}} (2010.07.20)
+# "Oku Hanako CM" {{yt|k0F4vKR1jM0}} {{nnd|sm11492671}} (2010.07.23)
+# "magnet" {{yt|oTHvsHDsdS4}} {{nnd|sm11538402}} feat. Limone-Sensei and [[Hanagoe]] (2010.07.27) '''(Privated)'''
+# "ZOU+" {{nnd|sm11716089}} (2010.08.11)
+# "Panda Hero" {{yt|dUIp5dDYkIU}} {{nnd|sm14158690}} (2011.04.14) '''(YT Video Deleted)'''
+# "PONPONPON" {{nnd|sm16389680}} -acoustic guitar.ver- (2011.12.10)
+# "Smiling" {{yt|BTcQM0sARSQ}} {{nnd|sm13012027}} -[[Smiling#Re:Member|＊Re:Member ver.]]- (collab) (2010.12.13) '''(Not in Mylist)'''
+# "Sakura Zensen Ijou Nashi" {{nnd|sm16552750}} (All Quiet on the Cherry Blossom Front) feat. Limone-Sensei and [[Ayakawa Yukiya]] (2011.12.28)
+# "Kagerou Days" {{yt|iZZCzZraviw}} {{nnd|sm16756628}} (Heat-Haze Days) (2012.01.21) '''(YT Video Deleted)'''
+# "Dai Ichiji Jibun Sensou" {{yt|B_4-LbLSBLQ}} {{nnd|sm17043933}} feat. Limone Sensei and [[Morinaga]] (2012.02.22) '''(YT Video Deleted)'''
+# "Yumekui Shirokuro Baku" {{yt|BBoRIqpi4fQ}} {{nnd|sm18476428}} (Dream-eating Monochrome Baku) -Rap ver.- feat. Limone-Sensei and [[Tightson]] (2012.07.29)
+# "Nou Shou Sakuretsu Girl" {{nnd|sm20512630}} (Gray Matter Explosion Girl) feat. Limone-Sensei and [[Morinaga]] (2013.04.03)
+# "Gishinanki" {{nnd|sm29023282}} (Jumping at Shadows) feat. Limone-sensei and [[Morinaga]] (2016.06.10)
+# "Outsider" {{yt|k1ZMOBRRxtY}} {{nnd|sm33298777}} feat. Limone-sensei (2018.06.01)
+# "[https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]" (2019.01.19)
+# "[https://youtu.be/2ivoSpTTgpc Idea]" (2019.08.18)
+{{Notice/missingcontent}}
+# "main dish ga taritenai" {{yt|g5nF3Mnrbrs}} (Amatsuki x [[96Neko]] x [[Shima]] x [[Limone-Sensei]]) (2025.03.23)
+}}`;
+
+                const lines = playlistData.split('\n');
+                // Skip the first line and the last line (playlist template start/end)
+                for (let i = 1; i < lines.length - 1; i++) {
+                    const line = lines[i].trim();
+                    if (line.startsWith('#')) {
+                        try {
+                            const entry = parseEntryLine(line);
+                            if (entry) {
+                                entry.id = nextId++;
+                                playlist.push(entry);
+                            }
+                        } catch (e) {
+                            console.error(`Error parsing line ${i + 1}: ${line}`, e);
+                        }
+                    }
+                }
+                
+                renderTable();
+                populateYearFilter();
+            }
+            
+            // Parse a single entry from the input
+            function parseEntry() {
+                const text = inputText.value.trim();
+                if (!text) return;
+                
+                try {
+                    const entry = parseEntryLine(text);
+                    if (entry) {
+                        entry.id = nextId++;
+                        playlist.push(entry);
+                        renderTable();
+                        populateYearFilter();
+                        inputText.value = '';
+                    }
+                } catch (e) {
+                    alert(`Error parsing entry: ${e.message}`);
+                }
+            }
+            
+            // Parse a single entry line and return an entry object
+            function parseEntryLine(line) {
+                if (!line.startsWith('#')) {
+                    throw new Error('Entry must start with #');
+                }
+                
+                // Basic structure
+                const entry = {
+                    number: 0,
+                    title: '',
+                    youtube: '',
+                    nnd: '',
+                    date: '',
+                    additional: ''
+                };
+                
+                // Extract number
+                const numberMatch = line.match(/^#\s*(\d+)?/);
+                if (numberMatch && numberMatch[1]) {
+                    entry.number = parseInt(numberMatch[1]);
+                } else {
+                    // Extract the number from the position in the list
+                    entry.number = line.startsWith('# ') ? 1 : 0;
+                }
+                
+                // Remove the number part
+                let content = line.replace(/^#\s*(\d+)?\s*/, '').trim();
+                
+                // Extract title
+                let titleMatch;
+                if (content.startsWith('"') && (titleMatch = content.match(/^"([^"]+)"/))) {
+                    entry.title = titleMatch[1];
+                    content = content.substring(titleMatch[0].length).trim();
+                } else if (content.startsWith('[') && (titleMatch = content.match(/^\[([^\]]+)\s+([^\]]+)\]/))) {
+                    // Handle link format [https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]
+                    const linkParts = titleMatch[1].split(' ');
+                    const url = linkParts[0];
+                    entry.title = titleMatch[2];
+                    
+                    // Extract YouTube ID from URL
+                    const ytIdMatch = url.match(/youtu\.be\/([^?&]+)|youtube\.com\/watch\?v=([^&]+)/);
+                    if (ytIdMatch) {
+                        entry.youtube = ytIdMatch[1] || ytIdMatch[2];
+                    }
+                    
+                    content = content.substring(titleMatch[0].length).trim();
+                }
+                
+                // Extract YouTube ID
+                const ytMatch = content.match(/{{yt\|([^}]+)}}/);
+                if (ytMatch) {
+                    entry.youtube = ytMatch[1];
+                    content = content.replace(ytMatch[0], '').trim();
+                }
+                
+                // Extract NND ID
+                const nndMatch = content.match(/{{nnd\|([^}]+)}}/);
+                if (nndMatch) {
+                    entry.nnd = nndMatch[1];
+                    content = content.replace(nndMatch[0], '').trim();
+                }
+                
+                // Extract date (YYYY.MM.DD)
+                const dateMatch = content.match(/\((\d{4}\.\d{2}\.\d{2})\)/);
+                if (dateMatch) {
+                    entry.date = dateMatch[1];
+                    content = content.replace(dateMatch[0], '').trim();
+                }
+                
+                // Extract date with non-standard format
+                if (!entry.date) {
+                    const altDateMatch = content.match(/\((\d{4})[.-](\d{1,2})[.-](\d{1,2})\)/);
+                    if (altDateMatch) {
+                        const year = altDateMatch[1];
+                        const month = altDateMatch[2].padStart(2, '0');
+                        const day = altDateMatch[3].padStart(2, '0');
+                        entry.date = `${year}.${month}.${day}`;
+                        content = content.replace(altDateMatch[0], '').trim();
+                    }
+                }
+                
+                // Handle additional information - this is everything else except for some common patterns
+                content = content.trim();
+                
+                // Handle feat. artists and similar patterns before the date
+                const featMatch = content.match(/feat\.\s+(.+?)\s+\(\d{4}/i);
+                if (featMatch) {
+                    const featText = featMatch[1];
+                    // Remove this part from the date match but keep it for additional info
+                    content = content.replace(`feat. ${featText}`, '').trim();
+                    entry.additional += `feat. ${featText} `;
+                }
+                
+                // Handle (singers x singers) pattern before the date
+                const singersMatch = content.match(/\(([^)]+)\)\s+\(\d{4}/);
+                if (singersMatch) {
+                    const singersText = singersMatch[1];
+                    // Remove this part from the date match but keep it for additional info
+                    content = content.replace(`(${singersText})`, '').trim();
+                    entry.additional += `(${singersText}) `;
+                }
+                
+                // Handle other information
+                if (content) {
+                    entry.additional += content;
+                }
+                
+                // Clean up additional info
+                entry.additional = entry.additional.trim();
+                
+                // If entry has minimum required data
+                if (entry.title) {
+                    return entry;
+                }
+                
+                return null;
+            }
+            
+            // Render the table
+            function renderTable() {
+                playlistTable.innerHTML = '';
+                
+                // Get current filter values
+                const searchTerm = searchInput.value.toLowerCase();
+                const yearValue = yearFilter.value;
+                
+                // Filter the playlist
+                const filteredPlaylist = playlist.filter(entry => {
+                    // Apply year filter
+                    if (yearValue && !entry.date.startsWith(yearValue)) {
+                        return false;
+                    }
+                    
+                    // Apply search filter
+                    if (searchTerm) {
+                        return (
+                            entry.title.toLowerCase().includes(searchTerm) ||
+                            entry.additional.toLowerCase().includes(searchTerm) ||
+                            entry.youtube.toLowerCase().includes(searchTerm) ||
+                            entry.nnd.toLowerCase().includes(searchTerm) ||
+                            entry.date.includes(searchTerm)
+                        );
+                    }
+                    
+                    return true;
+                });
+                
+                // Sort by number
+                filteredPlaylist.sort((a, b) => a.number - b.number);
+                
+                // Create table rows
+                filteredPlaylist.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.className = 'entry-row';
+                    row.dataset.id = entry.id;
+                    
+                    row.innerHTML = `
+                        <td class="py-3 px-4 border-b">${entry.number}</td>
+                        <td class="py-3 px-4 border-b">${entry.title}</td>
+                        <td class="py-3 px-4 border-b">
+                            ${entry.youtube ? `<a href="https://youtu.be/${entry.youtube}" target="_blank" class="text-blue-600 hover:text-blue-800">${entry.youtube}</a>` : ''}
+                        </td>
+                        <td class="py-3 px-4 border-b">
+                            ${entry.nnd ? `<span class="text-gray-700">${entry.nnd}</span>` : ''}
+                        </td>
+                        <td class="py-3 px-4 border-b">${entry.date}</td>
+                        <td class="py-3 px-4 border-b">${entry.additional}</td>
+                        <td class="py-3 px-4 border-b text-center">
+                            <button data-id="${entry.id}" class="edit-btn text-blue-600 hover:text-blue-800 mr-2">Edit</button>
+                            <button data-id="${entry.id}" class="delete-btn text-red-600 hover:text-red-800">Delete</button>
+                        </td>
+                    `;
+                    
+                    playlistTable.appendChild(row);
+                });
+                
+                // Add event listeners to buttons
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        openEditModal(id);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        openDeleteModal(id);
+                    });
+                });
+            }
+            
+            // Open add modal
+            function openAddModal() {
+                modalTitle.textContent = 'Add New Entry';
+                entryId.value = '';
+                
+                // Set next available number
+                const nextNumber = playlist.length > 0 
+                    ? Math.max(...playlist.map(entry => entry.number)) + 1 
+                    : 1;
+                
+                entryNumber.value = nextNumber;
+                entryTitle.value = '';
+                entryYoutube.value = '';
+                entryNnd.value = '';
+                entryDate.value = '';
+                entryAdditional.value = '';
+                
+                entryModal.classList.remove('hidden');
+            }
+            
+            // Open edit modal
+            function openEditModal(id) {
+                const entry = playlist.find(e => e.id === id);
+                if (!entry) return;
+                
+                modalTitle.textContent = 'Edit Entry';
+                entryId.value = entry.id;
+                entryNumber.value = entry.number;
+                entryTitle.value = entry.title;
+                entryYoutube.value = entry.youtube;
+                entryNnd.value = entry.nnd;
+                entryDate.value = entry.date;
+                entryAdditional.value = entry.additional;
+                
+                entryModal.classList.remove('hidden');
+            }
+            
+            // Close modal
+            function closeModal() {
+                entryModal.classList.add('hidden');
+            }
+            
+            // Save entry
+            function saveEntry(e) {
+                e.preventDefault();
+                
+                const id = entryId.value ? parseInt(entryId.value) : null;
+                const entry = {
+                    number: parseInt(entryNumber.value) || 0,
+                    title: entryTitle.value,
+                    youtube: entryYoutube.value,
+                    nnd: entryNnd.value,
+                    date: entryDate.value,
+                    additional: entryAdditional.value
+                };
+                
+                if (!entry.title) {
+                    alert('Title is required');
+                    return;
+                }
+                
+                if (id) {
+                    // Edit existing entry
+                    const index = playlist.findIndex(e => e.id === id);
+                    if (index !== -1) {
+                        entry.id = id;
+                        playlist[index] = entry;
+                    }
+                } else {
+                    // Add new entry
+                    entry.id = nextId++;
+                    playlist.push(entry);
+                }
+                
+                closeModal();
+                renderTable();
+                populateYearFilter();
+            }
+            
+            // Open delete modal
+            function openDeleteModal(id) {
+                deleteEntryId.value = id;
+                deleteModal.classList.remove('hidden');
+            }
+            
+            // Close delete modal
+            function closeDeleteModal() {
+                deleteModal.classList.add('hidden');
+            }
+            
+            // Confirm delete
+            function confirmDelete() {
+                const id = parseInt(deleteEntryId.value);
+                const index = playlist.findIndex(e => e.id === id);
+                
+                if (index !== -1) {
+                    playlist.splice(index, 1);
+                    renderTable();
+                    populateYearFilter();
+                }
+                
+                closeDeleteModal();
+            }
+            
+            // Generate output
+            function generateOutput() {
+                // Sort by number
+                const sortedPlaylist = [...playlist].sort((a, b) => a.number - b.number);
+                
+                // Generate output text
+                let output = '{{Playlist|content = \n';
+                
+                sortedPlaylist.forEach(entry => {
+                    let line = `# "${entry.title}"`;
+                    
+                    // Add YouTube
+                    if (entry.youtube) {
+                        line += ` {{yt|${entry.youtube}}}`;
+                    }
+                    
+                    // Add NND
+                    if (entry.nnd) {
+                        line += ` {{nnd|${entry.nnd}}}`;
+                    }
+                    
+                    // Add additional info before date if it doesn't have parentheses
+                    if (entry.additional && !entry.additional.includes('(') && !entry.additional.includes(')')) {
+                        line += ` ${entry.additional}`;
+                    }
+                    
+                    // Add date
+                    if (entry.date) {
+                        line += ` (${entry.date})`;
+                    }
+                    
+                    // Add additional info after date if it has parentheses
+                    if (entry.additional && (entry.additional.includes('(') || entry.additional.includes(')'))) {
+                        line += ` ${entry.additional}`;
+                    }
+                    
+                    output += line + '\n';
+                });
+                
+                output += '}}';
+                outputText.value = output;
+            }
+            
+            // Copy to clipboard
+            function copyToClipboard() {
+                outputText.select();
+                document.execCommand('copy');
+                
+                // Show feedback
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.disabled = true;
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.disabled = false;
+                }, 2000);
+            }
+            
+            // Populate year filter
+            function populateYearFilter() {
+                const years = new Set();
+                
+                playlist.forEach(entry => {
+                    if (entry.date) {
+                        const year = entry.date.split('.')[0];
+                        if (year) {
+                            years.add(year);
+                        }
+                    }
+                });
+                
+                // Clear existing options except the first one
+                while (yearFilter.options.length > 1) {
+                    yearFilter.options.remove(1);
+                }
+                
+                // Add new options
+                Array.from(years).sort().forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearFilter.appendChild(option);
+                });
+            }
+            
+            // Filter entries
+            function filterEntries() {
+                renderTable();
+            }
+            
+            // Reset filters
+            function resetFilters() {
+                searchInput.value = '';
+                yearFilter.selectedIndex = 0;
+                renderTable();
+            }
+        });
+    </script>
+</body>
+</html>
