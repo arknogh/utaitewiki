@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Utaite Wiki CSS Database</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         .loading {
             animation: spin 1s linear infinite;
@@ -22,14 +21,25 @@
             background-color: #FFFF00;
             color: #000000;
         }
+        /* Limit the maximum call stack size by properly handling large content */
+        .max-h-128 {
+            max-height: 32rem; /* 512px */
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-600">Utaite Wiki CSS Database</h1>
-        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
-            <p class="font-bold">Note about CORS</p>
-            <p>This app uses a CORS proxy (corsproxy.io) to fetch CSS content from utaite.fandom.com. If you encounter issues, you may need to try a different proxy or host this app on your own server.</p>
+        
+        <div class="bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 mb-6" role="alert">
+            <p class="font-bold">Server Setup Required</p>
+            <p>This app requires a PHP backend to work correctly. Upload both HTML and PHP files to your server.</p>
+            <p class="mt-2">
+                <span class="font-semibold">Backend URL:</span> 
+                <input type="text" id="backend-url" placeholder="https://your-server.com/proxy.php" 
+                    class="w-64 px-2 py-1 border border-amber-400 rounded ml-2">
+                <button id="save-url" class="bg-amber-500 text-white px-2 py-1 rounded ml-2 hover:bg-amber-600">Save</button>
+            </p>
         </div>
         
         <div class="mb-6 bg-white p-4 rounded-lg shadow">
@@ -61,6 +71,10 @@
                     <input type="checkbox" id="case-sensitive" class="mr-2">
                     <label for="case-sensitive" class="text-gray-700">Case sensitive search</label>
                 </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="disable-highlight" class="mr-2">
+                    <label for="disable-highlight" class="text-gray-700">Disable syntax highlighting</label>
+                </div>
             </div>
         </div>
         
@@ -89,12 +103,48 @@
                 <div id="css-content" class="border border-gray-200 p-4 rounded-lg bg-gray-50 min-h-64 max-h-128 overflow-y-auto font-mono text-sm">
                     <p class="text-gray-500 italic">Select a CSS file to view its content</p>
                 </div>
+                
+                <!-- Class extraction -->
+                <div class="mt-4">
+                    <button id="extract-classes" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition" disabled>
+                        Extract Classes
+                    </button>
+                    <div id="class-list" class="mt-4 hidden">
+                        <h3 class="text-lg font-semibold text-green-600 mb-2">Extracted Classes</h3>
+                        <div id="extracted-classes" class="max-h-64 overflow-y-auto bg-gray-50 p-2 rounded border border-gray-200">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Backend URL handling
+            const backendUrlInput = document.getElementById('backend-url');
+            const saveUrlButton = document.getElementById('save-url');
+            
+            // Try to load saved URL from localStorage
+            const savedUrl = localStorage.getItem('backendUrl');
+            if (savedUrl) {
+                backendUrlInput.value = savedUrl;
+            }
+            
+            saveUrlButton.addEventListener('click', function() {
+                const url = backendUrlInput.value.trim();
+                if (url) {
+                    localStorage.setItem('backendUrl', url);
+                    alert('Backend URL saved!');
+                } else {
+                    alert('Please enter a valid URL');
+                }
+            });
+            
+            function getBackendUrl() {
+                return localStorage.getItem('backendUrl') || '';
+            }
+            
             // State variables
             let cssFiles = [];
             let currentFileIndex = -1;
@@ -113,6 +163,10 @@
             const cssFilesCount = document.getElementById('css-files-count');
             const showClassesOnly = document.getElementById('show-classes-only');
             const caseSensitive = document.getElementById('case-sensitive');
+            const disableHighlight = document.getElementById('disable-highlight');
+            const extractClassesButton = document.getElementById('extract-classes');
+            const classListDiv = document.getElementById('class-list');
+            const extractedClassesDiv = document.getElementById('extracted-classes');
             
             // Search navigation elements
             const searchStats = document.getElementById('search-stats');
@@ -131,29 +185,35 @@
             caseSensitive.addEventListener('change', () => {
                 if (currentFileIndex >= 0 && searchInput.value) searchInCurrentFile();
             });
+            disableHighlight.addEventListener('change', () => {
+                if (currentFileIndex >= 0) displayFileContent(currentFileIndex);
+            });
             prevMatchBtn.addEventListener('click', () => navigateMatches(-1));
             nextMatchBtn.addEventListener('click', () => navigateMatches(1));
+            extractClassesButton.addEventListener('click', extractClasses);
             
             // Functions
             async function fetchCSSFiles() {
+                const backendUrl = getBackendUrl();
+                if (!backendUrl) {
+                    alert('Please set the backend URL first');
+                    return;
+                }
+                
                 setLoading(true, 'Fetching CSS files list...');
                 cssFiles = [];
                 cssFilesList.innerHTML = '';
                 
                 try {
-                    // API URL to get all pages in MediaWiki namespace with .css extension
-                    // Using origin=* parameter which Fandom/MediaWiki API supports for CORS
-                    const apiUrl = 'https://utaite.fandom.com/api.php?action=query&list=allpages&apnamespace=8&apfrom=&aplimit=500&format=json&origin=*&apfilterredir=nonredirects';
+                    // Use our PHP proxy to get the list
+                    const apiUrl = `${backendUrl}?action=list`;
                     
                     const response = await fetch(apiUrl);
                     if (!response.ok) throw new Error('Failed to fetch MediaWiki pages');
                     
                     const data = await response.json();
                     
-                    // Filter for pages with .css extension
-                    const cssPages = data.query.allpages.filter(page => page.title.endsWith('.css'));
-                    
-                    if (cssPages.length === 0) {
+                    if (!data.files || data.files.length === 0) {
                         cssFilesList.innerHTML = '<p class="text-red-500">No CSS files found</p>';
                         cssFilesCount.textContent = '0 files found';
                         setLoading(false, 'No CSS files found');
@@ -161,17 +221,7 @@
                     }
                     
                     // Store CSS files data
-                    cssPages.forEach(page => {
-                        const pageTitle = page.title;
-                        const pageUrl = `https://utaite.fandom.com/wiki/${encodeURIComponent(pageTitle)}`;
-                        
-                        cssFiles.push({
-                            title: pageTitle,
-                            url: pageUrl,
-                            rawUrl: `https://utaite.fandom.com/wiki/${encodeURIComponent(pageTitle)}?action=raw`,
-                            content: null
-                        });
-                    });
+                    cssFiles = data.files;
                     
                     // Display the CSS files list
                     renderFilesList();
@@ -222,60 +272,98 @@
             }
             
             async function loadFileContent(index) {
-                if (index < 0 || index >= cssFiles.length) return;
-                
-                const fileToLoad = cssFiles[index];
-                currentFileIndex = index;
-                
-                // Highlight selected file
-                const fileItems = cssFilesList.querySelectorAll('div.hover\\:bg-gray-50');
-                fileItems.forEach((item, i) => {
-                    if (i === index) {
-                        item.classList.add('bg-indigo-100');
-                    } else {
-                        item.classList.remove('bg-indigo-100');
-                    }
-                });
-                
-                // Show filename
-                currentFile.textContent = fileToLoad.title;
-                
-                // If content is already loaded, just display it
-                if (fileToLoad.content !== null) {
-                    displayFileContent(index);
-                    return;
-                }
-                
-                // Otherwise, fetch the content using a CORS proxy
-                setLoading(true, `Loading ${fileToLoad.title}...`);
-                
-                try {
-                    // Using a CORS proxy to bypass the CORS restriction
-                    const corsProxy = 'https://corsproxy.io/?';
-                    const response = await fetch(corsProxy + encodeURIComponent(fileToLoad.rawUrl));
-                    if (!response.ok) throw new Error(`Failed to fetch ${fileToLoad.title}`);
-                    
-                    const cssContent = await response.text();
-                    fileToLoad.content = cssContent;
-                    
-                    displayFileContent(index);
-                    setLoading(false, `Loaded ${fileToLoad.title}`);
-                    
-                } catch (error) {
-                    console.error(`Error loading file content for ${fileToLoad.title}:`, error);
-                    cssContent.innerHTML = `<p class="text-red-500">Error loading file content: ${error.message}</p>`;
-                    setLoading(false, 'Error loading file content');
-                }
-            }
+    if (index < 0 || index >= cssFiles.length) {
+        console.log("Invalid index:", index);
+        return;
+    }
+    
+    const backendUrl = getBackendUrl();
+    if (!backendUrl) {
+        console.log("No backend URL set");
+        alert('Please set the backend URL first');
+        return;
+    }
+    
+    console.log("Loading file at index:", index);
+    console.log("File to load:", cssFiles[index]);
+    
+    const fileToLoad = cssFiles[index];
+    currentFileIndex = index;
+    
+    // Highlight selected file
+    const fileItems = cssFilesList.querySelectorAll('div.hover\\:bg-gray-50');
+    fileItems.forEach((item, i) => {
+        if (i === index) {
+            item.classList.add('bg-indigo-100');
+        } else {
+            item.classList.remove('bg-indigo-100');
+        }
+    });
+    
+    // Show filename
+    currentFile.textContent = fileToLoad.title;
+    
+    // Check if content exists and is not undefined or null
+    console.log("File content exists?", fileToLoad.content !== undefined && fileToLoad.content !== null);
+    
+    // If content is already loaded, just display it
+    if (fileToLoad.content !== undefined && fileToLoad.content !== null) {
+        console.log("Using cached content");
+        displayFileContent(index);
+        extractClassesButton.disabled = false;
+        return;
+    }
+    
+    // Otherwise, fetch the content
+    console.log("Fetching content from server");
+    setLoading(true, `Loading ${fileToLoad.title}...`);
+    
+    try {
+        // Use our PHP proxy to fetch the content
+        const url = `${backendUrl}?action=fetch&title=${encodeURIComponent(fileToLoad.title)}`;
+        console.log("Fetch URL:", url);
+        
+        const response = await fetch(url);
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) throw new Error(`Failed to fetch ${fileToLoad.title}`);
+        
+        const cssContent = await response.text();
+        console.log("Content received, length:", cssContent.length);
+        console.log("First 100 chars:", cssContent.substring(0, 100));
+        
+        fileToLoad.content = cssContent;
+        
+        displayFileContent(index);
+        extractClassesButton.disabled = false;
+        setLoading(false, `Loaded ${fileToLoad.title}`);
+        
+    } catch (error) {
+        console.error(`Error loading file content for ${fileToLoad.title}:`, error);
+        cssContent.innerHTML = `<p class="text-red-500">Error loading file content: ${error.message}</p>`;
+        extractClassesButton.disabled = true;
+        setLoading(false, 'Error loading file content');
+    }
+}
             
             function displayFileContent(index) {
                 if (index < 0 || index >= cssFiles.length) return;
                 
                 const fileToDisplay = cssFiles[index];
+                
+                // Check if content exists
+                if (!fileToDisplay.content) {
+                    cssContent.innerHTML = `<p class="text-red-500">No content available for this file.</p>`;
+                    return;
+                }
+                
                 let contentToDisplay = fileToDisplay.content;
                 
+                // Now safely check the length
+                const isLargeFile = contentToDisplay.length > 1000; // 200KB
+                
                 // Filter to only show class definitions if option is selected
-                if (showClassesOnly.checked) {
+                if (showClassesOnly.checked && !isLargeFile) {
                     const classLines = [];
                     const lines = contentToDisplay.split('\n');
                     
@@ -304,10 +392,17 @@
                     contentToDisplay = classLines.join('\n');
                 }
                 
-                // Apply syntax highlighting (simple version)
-                contentToDisplay = highlightCSSSyntax(contentToDisplay);
-                
-                cssContent.innerHTML = `<pre>${contentToDisplay}</pre>`;
+                // For very large files or if highlighting is disabled, just show plain text
+                if (isLargeFile || disableHighlight.checked) {
+                    cssContent.innerHTML = `
+                        ${isLargeFile ? '<p class="text-amber-600 mb-2">Large file detected. Syntax highlighting disabled.</p>' : ''}
+                        <pre>${escapeHtml(contentToDisplay)}</pre>
+                    `;
+                } else {
+                    // Apply syntax highlighting in chunks to avoid call stack issues
+                    const highlightedContent = safeHighlightCSS(contentToDisplay);
+                    cssContent.innerHTML = `<pre>${highlightedContent}</pre>`;
+                }
                 
                 // Apply search if there's a term
                 if (searchInput.value) {
@@ -317,25 +412,38 @@
                 }
             }
             
-            function highlightCSSSyntax(css) {
-                // This is a simple syntax highlighter
-                // For a production app, consider using a dedicated library
+            function safeHighlightCSS(css) {
+                // Process CSS in chunks to avoid stack overflow
+                const chunkSize = 20000; // 20KB chunks
+                const chunks = [];
                 
-                // Escape HTML to prevent script injection
-                let highlighted = escapeHtml(css);
-                
-                // Add some basic syntax highlighting
-                highlighted = highlighted
-                    // Properties
-                    .replace(/([a-zA-Z-]+)(\s*):(\s*[^;]+;)/g, '<span style="color:#905">$1</span>$2:$3')
-                    // Selectors
-                    .replace(/([.#][a-zA-Z0-9_-]+)/g, '<span style="color:#007">$1</span>')
-                    // Values
-                    .replace(/:(\s*)([^;]+)(;)/g, ':$1<span style="color:#077">$2</span>$3')
-                    // Comments
-                    .replace(/(\/\*[\s\S]*?\*\/)/g, '<span style="color:#999">$1</span>');
-                
-                return highlighted;
+                try {
+                    // First escape HTML in the entire string
+                    const escapedCss = escapeHtml(css);
+                    
+                    // Process in chunks
+                    for (let i = 0; i < escapedCss.length; i += chunkSize) {
+                        let chunk = escapedCss.substring(i, i + chunkSize);
+                        
+                        // Process each chunk with the highlighting rules
+                        chunk = chunk
+                            // Properties
+                            .replace(/([a-zA-Z-]+)(\s*):(\s*[^;]+;)/g, '<span style="color:#905">$1</span>$2:$3')
+                            // Selectors
+                            .replace(/([.#][a-zA-Z0-9_-]+)/g, '<span style="color:#007">$1</span>')
+                            // Values (simplified to avoid potential issues)
+                            .replace(/:(\s*)([^;{<]+)(;)/g, ':$1<span style="color:#077">$2</span>$3')
+                            // Comments (simplified for safety)
+                            .replace(/(\/\*[\s\S]*?\*\/)/g, '<span style="color:#999">$1</span>');
+                        
+                        chunks.push(chunk);
+                    }
+                    
+                    return chunks.join('');
+                } catch (error) {
+                    console.error('Error in syntax highlighting:', error);
+                    return escapeHtml(css); // Fallback to plain text
+                }
             }
             
             function escapeHtml(unsafe) {
@@ -348,7 +456,7 @@
             }
             
             function countChar(str, char) {
-                return (str.match(new RegExp(char, 'g')) || []).length;
+                return (str.match(new RegExp('\\' + char, 'g')) || []).length;
             }
             
             function searchInCurrentFile() {
@@ -367,7 +475,35 @@
                 const content = cssFiles[currentFileIndex].content;
                 const isCaseSensitive = caseSensitive.checked;
                 
-                // Find all matches
+                // For very large files, use a simplified approach
+                if (content.length > 100000) {
+                    const regexFlags = isCaseSensitive ? 'g' : 'gi';
+                    try {
+                        const regex = new RegExp(escapeRegExp(searchTerm), regexFlags);
+                        const matchesCount = (content.match(regex) || []).length;
+                        
+                        searchStats.classList.remove('hidden');
+                        matchCount.textContent = matchesCount;
+                        prevMatchBtn.disabled = true;
+                        nextMatchBtn.disabled = true;
+                        matchPosition.textContent = '(navigation disabled for large files)';
+                        
+                        // Just show the content with a message
+                        cssContent.innerHTML = `
+                            <p class="text-amber-600 mb-2">Large file: found ${matchesCount} matches. 
+                            Highlighting disabled for performance reasons.</p>
+                            <pre>${escapeHtml(content)}</pre>
+                        `;
+                    } catch (e) {
+                        console.error('Search error:', e);
+                        searchStats.classList.remove('hidden');
+                        matchCount.textContent = 'Error';
+                        matchPosition.textContent = '';
+                    }
+                    return;
+                }
+                
+                // Find all matches for smaller files
                 currentMatches = [];
                 let searchRegex;
                 
@@ -388,45 +524,36 @@
                 
                 // Update the display with highlighted matches
                 if (currentMatches.length > 0) {
-                    // Get the content with syntax highlighting
-                    let displayContent = highlightCSSSyntax(content);
-                    
-                    // Now add highlights for search matches
-                    // We need to do this carefully to not interfere with syntax highlighting
-                    let offset = 0;
-                    for (let i = 0; i < currentMatches.length; i++) {
-                        const match = currentMatches[i];
+                    // For syntax highlighted content, we need to adjust the display
+                    if (!disableHighlight.checked) {
+                        // Get the content with syntax highlighting
+                        let displayContent = safeHighlightCSS(content);
                         
-                        // Find the actual position in the highlighted text
-                        // This is complex because the syntax highlighting has added HTML tags
-                        const beforeMatch = displayContent.substring(0, match.index + offset);
-                        const matchText = displayContent.substring(match.index + offset, match.index + match.length + offset);
+                        // Find positions of matches in the highlighted text
+                        const positions = findMatchPositionsInHighlightedText(
+                            displayContent, content, currentMatches
+                        );
                         
-                        // Count how many HTML tags are in the text before this match
-                        const tagRegex = /<[^>]+>/g;
-                        let tagMatch;
-                        let tagLength = 0;
+                        // Apply highlights to matches
+                        displayContent = highlightMatches(displayContent, positions);
+                        cssContent.innerHTML = `<pre>${displayContent}</pre>`;
+                    } else {
+                        // For plain text, it's simpler
+                        let displayContent = escapeHtml(content);
+                        let offset = 0;
                         
-                        while ((tagMatch = tagRegex.exec(beforeMatch)) !== null) {
-                            tagLength += tagMatch[0].length;
+                        for (let i = 0; i < currentMatches.length; i++) {
+                            const match = currentMatches[i];
+                            const before = displayContent.substring(0, match.index + offset);
+                            const matchText = displayContent.substring(match.index + offset, match.index + match.length + offset);
+                            const after = displayContent.substring(match.index + match.length + offset);
+                            
+                            displayContent = before + `<span id="match-${i}" class="highlight">${matchText}</span>` + after;
+                            offset += '<span id="match-" class="highlight"></span>'.length + i.toString().length;
                         }
                         
-                        // Adjust the offset for this match
-                        offset += tagLength;
-                        
-                        // Update the match position
-                        match.highlightIndex = match.index + offset;
-                        
-                        // Add the highlight
-                        const before = displayContent.substring(0, match.highlightIndex);
-                        const after = displayContent.substring(match.highlightIndex + match.length);
-                        displayContent = before + `<span id="match-${i}" class="highlight">${matchText}</span>` + after;
-                        
-                        // Adjust offset for the highlight tags we just added
-                        offset += '<span id="match-" class="highlight"></span>'.length + i.toString().length;
+                        cssContent.innerHTML = `<pre>${displayContent}</pre>`;
                     }
-                    
-                    cssContent.innerHTML = `<pre>${displayContent}</pre>`;
                     
                     // Show search stats
                     searchStats.classList.remove('hidden');
@@ -445,6 +572,73 @@
                     prevMatchBtn.disabled = true;
                     nextMatchBtn.disabled = true;
                 }
+            }
+            
+            // Function to find match positions in highlighted text
+            function findMatchPositionsInHighlightedText(highlightedText, originalText, matches) {
+                // This is a simplified approach - in a real app you might need more sophisticated matching
+                const positions = [];
+                
+                // Extract text without HTML tags for comparison
+                const textNoTags = highlightedText.replace(/<[^>]+>/g, '');
+                
+                for (const match of matches) {
+                    // Find the position in text without tags
+                    const plainTextBeforeMatch = originalText.substring(0, match.index);
+                    const plainTextMatchEnd = match.index + match.length;
+                    
+                    // Count the HTML tags before this position to adjust the index
+                    let htmlIndex = 0;
+                    let plainTextIndex = 0;
+                    let tagCount = 0;
+                    
+                    while (plainTextIndex < plainTextMatchEnd && htmlIndex < highlightedText.length) {
+                        if (highlightedText[htmlIndex] === '<') {
+                            // Skip the entire tag
+                            const tagEndIndex = highlightedText.indexOf('>', htmlIndex);
+                            if (tagEndIndex !== -1) {
+                                tagCount += tagEndIndex - htmlIndex + 1;
+                                htmlIndex = tagEndIndex + 1;
+                            } else {
+                                // Malformed HTML, just move on
+                                htmlIndex++;
+                            }
+                        } else {
+                            plainTextIndex++;
+                            htmlIndex++;
+                        }
+                        
+                        // When we reach the start of the match
+                        if (plainTextIndex === match.index) {
+                            // Record the position in the HTML
+                            positions.push({
+                                start: htmlIndex,
+                                length: match.length,
+                                originalIndex: match.index
+                            });
+                            break;
+                        }
+                    }
+                }
+                
+                return positions;
+            }
+            
+            // Function to highlight matches in text
+            function highlightMatches(text, positions) {
+                // Sort positions by start index in descending order to avoid index shifts
+                positions.sort((a, b) => b.start - a.start);
+                
+                for (let i = 0; i < positions.length; i++) {
+                    const pos = positions[i];
+                    const before = text.substring(0, pos.start);
+                    const matchText = text.substring(pos.start, pos.start + pos.length);
+                    const after = text.substring(pos.start + pos.length);
+                    
+                    text = before + `<span id="match-${i}" class="highlight">${matchText}</span>` + after;
+                }
+                
+                return text;
             }
             
             function navigateMatches(direction) {
@@ -486,6 +680,49 @@
                 return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
             
+            function extractClasses() {
+                if (currentFileIndex < 0 || !cssFiles[currentFileIndex].content) return;
+                
+                const content = cssFiles[currentFileIndex].content;
+                
+                // Extract class names using regex
+                // Match class selectors (.class, .class-name, etc.)
+                const classRegex = /\.([a-zA-Z0-9_-]+)[^{]*/g;
+                const classes = new Set();
+                let match;
+                
+                try {
+                    while ((match = classRegex.exec(content)) !== null) {
+                        // Extract the class name (without the dot)
+                        const className = match[1].trim();
+                        if (className) {
+                            classes.add(className);
+                        }
+                    }
+                    
+                    // Display the extracted classes
+                    if (classes.size > 0) {
+                        const classesArray = Array.from(classes).sort();
+                        
+                        let html = '<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">';
+                        classesArray.forEach(className => {
+                            html += `<div class="bg-gray-100 p-2 rounded">.${className}</div>`;
+                        });
+                        html += '</div>';
+                        
+                        extractedClassesDiv.innerHTML = html;
+                        classListDiv.classList.remove('hidden');
+                    } else {
+                        extractedClassesDiv.innerHTML = '<p class="text-gray-500">No classes found in this file</p>';
+                        classListDiv.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error extracting classes:', error);
+                    extractedClassesDiv.innerHTML = `<p class="text-red-500">Error extracting classes: ${error.message}</p>`;
+                    classListDiv.classList.remove('hidden');
+                }
+            }
+            
             function resetApp() {
                 cssFiles = [];
                 currentFileIndex = -1;
@@ -497,8 +734,11 @@
                 searchInput.value = '';
                 showClassesOnly.checked = false;
                 caseSensitive.checked = false;
+                disableHighlight.checked = false;
                 cssFilesCount.textContent = '0 files found';
                 searchStats.classList.add('hidden');
+                extractClassesButton.disabled = true;
+                classListDiv.classList.add('hidden');
                 setLoading(false, 'Reset complete');
             }
             
