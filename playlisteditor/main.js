@@ -164,145 +164,145 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Parse a single entry from the input
-    function parseEntry() {
-        const text = inputText.value.trim();
-        if (!text) {
-            showToast('Please enter an entry to parse', 'warning');
-            return;
-        }
+    // function parseEntry() {
+    //     const text = inputText.value.trim();
+    //     if (!text) {
+    //         showToast('Please enter an entry to parse', 'warning');
+    //         return;
+    //     }
         
-        try {
-            const entry = parseEntryLine(text);
-            if (entry) {
-                entry.id = nextId++;
-                playlist.push(entry);
-                renderTable();
-                populateYearFilter();
-                inputText.value = '';
-                showToast('Entry successfully added!', 'success');
-            }
-        } catch (e) {
-            showToast(`Error parsing entry: ${e.message}`, 'error');
-        }
-    }
+    //     try {
+    //         const entry = parseEntryLine(text);
+    //         if (entry) {
+    //             entry.id = nextId++;
+    //             playlist.push(entry);
+    //             renderTable();
+    //             populateYearFilter();
+    //             inputText.value = '';
+    //             showToast('Entry successfully added!', 'success');
+    //         }
+    //     } catch (e) {
+    //         showToast(`Error parsing entry: ${e.message}`, 'error');
+    //     }
+    // }
     
     // Parse a single entry line and return an entry object
-    function parseEntryLine(line) {
-        if (!line.startsWith('#')) {
-            throw new Error('Entry must start with #');
-        }
+    // function parseEntryLine(line) {
+    //     if (!line.startsWith('#')) {
+    //         throw new Error('Entry must start with #');
+    //     }
         
-        // Basic structure
-        const entry = {
-            number: 0,
-            title: '',
-            youtube: '',
-            nnd: '',
-            date: '',
-            additional: ''
-        };
+    //     // Basic structure
+    //     const entry = {
+    //         number: 0,
+    //         title: '',
+    //         youtube: '',
+    //         nnd: '',
+    //         date: '',
+    //         additional: ''
+    //     };
         
-        // Extract number
-        const numberMatch = line.match(/^#\s*(\d+)?/);
-        if (numberMatch && numberMatch[1]) {
-            entry.number = parseInt(numberMatch[1]);
-        } else {
-            // Extract the number from the position in the list
-            entry.number = line.startsWith('# ') ? 1 : 0;
-        }
+    //     // Extract number
+    //     const numberMatch = line.match(/^#\s*(\d+)?/);
+    //     if (numberMatch && numberMatch[1]) {
+    //         entry.number = parseInt(numberMatch[1]);
+    //     } else {
+    //         // Extract the number from the position in the list
+    //         entry.number = line.startsWith('# ') ? 1 : 0;
+    //     }
         
-        // Remove the number part
-        let content = line.replace(/^#\s*(\d+)?\s*/, '').trim();
+    //     // Remove the number part
+    //     let content = line.replace(/^#\s*(\d+)?\s*/, '').trim();
         
-        // Extract title
-        let titleMatch;
-        if (content.startsWith('"') && (titleMatch = content.match(/^"([^"]+)"/))) {
-            entry.title = titleMatch[1];
-            content = content.substring(titleMatch[0].length).trim();
-        } else if (content.startsWith('[') && (titleMatch = content.match(/^\[([^\]]+)\s+([^\]]+)\]/))) {
-            // Handle link format [https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]
-            const linkParts = titleMatch[1].split(' ');
-            const url = linkParts[0];
-            entry.title = titleMatch[2];
+    //     // Extract title
+    //     let titleMatch;
+    //     if (content.startsWith('"') && (titleMatch = content.match(/^"([^"]+)"/))) {
+    //         entry.title = titleMatch[1];
+    //         content = content.substring(titleMatch[0].length).trim();
+    //     } else if (content.startsWith('[') && (titleMatch = content.match(/^\[([^\]]+)\s+([^\]]+)\]/))) {
+    //         // Handle link format [https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]
+    //         const linkParts = titleMatch[1].split(' ');
+    //         const url = linkParts[0];
+    //         entry.title = titleMatch[2];
             
-            // Extract YouTube ID from URL
-            const ytIdMatch = url.match(/youtu\.be\/([^?&]+)|youtube\.com\/watch\?v=([^&]+)/);
-            if (ytIdMatch) {
-                entry.youtube = ytIdMatch[1] || ytIdMatch[2];
-            }
+    //         // Extract YouTube ID from URL
+    //         const ytIdMatch = url.match(/youtu\.be\/([^?&]+)|youtube\.com\/watch\?v=([^&]+)/);
+    //         if (ytIdMatch) {
+    //             entry.youtube = ytIdMatch[1] || ytIdMatch[2];
+    //         }
             
-            content = content.substring(titleMatch[0].length).trim();
-        }
+    //         content = content.substring(titleMatch[0].length).trim();
+    //     }
         
-        // Extract YouTube ID
-        const ytMatch = content.match(/{{yt\|([^}]+)}}/);
-        if (ytMatch) {
-            entry.youtube = ytMatch[1];
-            content = content.replace(ytMatch[0], '').trim();
-        }
+    //     // Extract YouTube ID
+    //     const ytMatch = content.match(/{{yt\|([^}]+)}}/);
+    //     if (ytMatch) {
+    //         entry.youtube = ytMatch[1];
+    //         content = content.replace(ytMatch[0], '').trim();
+    //     }
         
-        // Extract NND ID
-        const nndMatch = content.match(/{{nnd\|([^}]+)}}/);
-        if (nndMatch) {
-            entry.nnd = nndMatch[1];
-            content = content.replace(nndMatch[0], '').trim();
-        }
+    //     // Extract NND ID
+    //     const nndMatch = content.match(/{{nnd\|([^}]+)}}/);
+    //     if (nndMatch) {
+    //         entry.nnd = nndMatch[1];
+    //         content = content.replace(nndMatch[0], '').trim();
+    //     }
         
-        // Extract date (YYYY.MM.DD)
-        const dateMatch = content.match(/\((\d{4}\.\d{2}\.\d{2})\)/);
-        if (dateMatch) {
-            entry.date = dateMatch[1];
-            content = content.replace(dateMatch[0], '').trim();
-        }
+    //     // Extract date (YYYY.MM.DD)
+    //     const dateMatch = content.match(/\((\d{4}\.\d{2}\.\d{2})\)/);
+    //     if (dateMatch) {
+    //         entry.date = dateMatch[1];
+    //         content = content.replace(dateMatch[0], '').trim();
+    //     }
         
-        // Extract date with non-standard format
-        if (!entry.date) {
-            const altDateMatch = content.match(/\((\d{4})[.-](\d{1,2})[.-](\d{1,2})\)/);
-            if (altDateMatch) {
-                const year = altDateMatch[1];
-                const month = altDateMatch[2].padStart(2, '0');
-                const day = altDateMatch[3].padStart(2, '0');
-                entry.date = `${year}.${month}.${day}`;
-                content = content.replace(altDateMatch[0], '').trim();
-            }
-        }
+    //     // Extract date with non-standard format
+    //     if (!entry.date) {
+    //         const altDateMatch = content.match(/\((\d{4})[.-](\d{1,2})[.-](\d{1,2})\)/);
+    //         if (altDateMatch) {
+    //             const year = altDateMatch[1];
+    //             const month = altDateMatch[2].padStart(2, '0');
+    //             const day = altDateMatch[3].padStart(2, '0');
+    //             entry.date = `${year}.${month}.${day}`;
+    //             content = content.replace(altDateMatch[0], '').trim();
+    //         }
+    //     }
         
-        // Handle additional information - this is everything else except for some common patterns
-        content = content.trim();
+    //     // Handle additional information - this is everything else except for some common patterns
+    //     content = content.trim();
         
-        // Handle feat. artists and similar patterns before the date
-        const featMatch = content.match(/feat\.\s+(.+?)\s+\(\d{4}/i);
-        if (featMatch) {
-            const featText = featMatch[1];
-            // Remove this part from the date match but keep it for additional info
-            content = content.replace(`feat. ${featText}`, '').trim();
-            entry.additional += `feat. ${featText} `;
-        }
+    //     // Handle feat. artists and similar patterns before the date
+    //     const featMatch = content.match(/feat\.\s+(.+?)\s+\(\d{4}/i);
+    //     if (featMatch) {
+    //         const featText = featMatch[1];
+    //         // Remove this part from the date match but keep it for additional info
+    //         content = content.replace(`feat. ${featText}`, '').trim();
+    //         entry.additional += `feat. ${featText} `;
+    //     }
         
-        // Handle (singers x singers) pattern before the date
-        const singersMatch = content.match(/\(([^)]+)\)\s+\(\d{4}/);
-        if (singersMatch) {
-            const singersText = singersMatch[1];
-            // Remove this part from the date match but keep it for additional info
-            content = content.replace(`(${singersText})`, '').trim();
-            entry.additional += `(${singersText}) `;
-        }
+    //     // Handle (singers x singers) pattern before the date
+    //     const singersMatch = content.match(/\(([^)]+)\)\s+\(\d{4}/);
+    //     if (singersMatch) {
+    //         const singersText = singersMatch[1];
+    //         // Remove this part from the date match but keep it for additional info
+    //         content = content.replace(`(${singersText})`, '').trim();
+    //         entry.additional += `(${singersText}) `;
+    //     }
         
-        // Handle other information
-        if (content) {
-            entry.additional += content;
-        }
+    //     // Handle other information
+    //     if (content) {
+    //         entry.additional += content;
+    //     }
         
-        // Clean up additional info
-        entry.additional = entry.additional.trim();
+    //     // Clean up additional info
+    //     entry.additional = entry.additional.trim();
         
-        // If entry has minimum required data
-        if (entry.title) {
-            return entry;
-        }
+    //     // If entry has minimum required data
+    //     if (entry.title) {
+    //         return entry;
+    //     }
         
-        return null;
-    }
+    //     return null;
+    // }
     
     // Render the table
     function renderTable() {
@@ -637,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nextId = 1;
             
             // Clear the input and output fields
-            inputText.value = '';
+            // inputText.value = '';
             outputText.value = '';
             
             // Reset filters
