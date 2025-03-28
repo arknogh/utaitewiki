@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const outputText = document.getElementById('output-text');
     //const parseBtn = document.getElementById('parse-btn');
     const addBtn = document.getElementById('add-btn');
+    const importRawBtn = document.getElementById('import-raw-btn');
     const generateBtn = document.getElementById('generate-btn');
     const copyBtn = document.getElementById('copy-btn');
     // const clearInputBtn = document.getElementById('clear-input-btn');
@@ -93,6 +94,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
     const yearFilter = document.getElementById('year-filter');
     const resetFilterBtn = document.getElementById('reset-filter-btn');
+    const rawDataModal = document.getElementById('raw-data-modal');
+    const rawDataInput = document.getElementById('raw-data-input');
+    const rawDataCancel = document.getElementById('raw-data-cancel');
+    const rawDataImport = document.getElementById('raw-data-import');
     
     // Parse raw playlist data from the provided text
     parseInitialPlaylist();
@@ -100,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     // parseBtn.addEventListener('click', parseEntry);
     addBtn.addEventListener('click', openAddModal);
+    importRawBtn.addEventListener('click', openRawDataModal);
     generateBtn.addEventListener('click', generateOutput);
     copyBtn.addEventListener('click', copyToClipboard);
     // clearInputBtn.addEventListener('click', () => { 
@@ -117,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', filterEntries);
     yearFilter.addEventListener('change', filterEntries);
     resetFilterBtn.addEventListener('click', resetFilters);
+    rawDataCancel.addEventListener('click', closeRawDataModal);
+    rawDataImport.addEventListener('click', importRawData);
     
     const resetAllBtn = document.getElementById('reset-all-btn');
     if (resetAllBtn) {
@@ -163,146 +171,125 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast('Playlist data loaded successfully', 'success');
     }
     
-    // Parse a single entry from the input
-    // function parseEntry() {
-    //     const text = inputText.value.trim();
-    //     if (!text) {
-    //         showToast('Please enter an entry to parse', 'warning');
-    //         return;
-    //     }
+    // Parse entry line function
+    function parseEntryLine(line) {
+        if (!line.startsWith('#')) {
+            throw new Error('Entry must start with #');
+        }
         
-    //     try {
-    //         const entry = parseEntryLine(text);
-    //         if (entry) {
-    //             entry.id = nextId++;
-    //             playlist.push(entry);
-    //             renderTable();
-    //             populateYearFilter();
-    //             inputText.value = '';
-    //             showToast('Entry successfully added!', 'success');
-    //         }
-    //     } catch (e) {
-    //         showToast(`Error parsing entry: ${e.message}`, 'error');
-    //     }
-    // }
-    
-    // Parse a single entry line and return an entry object
-    // function parseEntryLine(line) {
-    //     if (!line.startsWith('#')) {
-    //         throw new Error('Entry must start with #');
-    //     }
+        // Basic structure
+        const entry = {
+            number: 0,
+            title: '',
+            youtube: '',
+            nnd: '',
+            date: '',
+            additional: ''
+        };
         
-    //     // Basic structure
-    //     const entry = {
-    //         number: 0,
-    //         title: '',
-    //         youtube: '',
-    //         nnd: '',
-    //         date: '',
-    //         additional: ''
-    //     };
+        // Extract number
+        const numberMatch = line.match(/^#\s*(\d+)?/);
+        if (numberMatch && numberMatch[1]) {
+            entry.number = parseInt(numberMatch[1]);
+        } else {
+            // Extract the number from the position in the list
+            entry.number = line.startsWith('# ') ? playlist.length + 1 : 0;
+        }
         
-    //     // Extract number
-    //     const numberMatch = line.match(/^#\s*(\d+)?/);
-    //     if (numberMatch && numberMatch[1]) {
-    //         entry.number = parseInt(numberMatch[1]);
-    //     } else {
-    //         // Extract the number from the position in the list
-    //         entry.number = line.startsWith('# ') ? 1 : 0;
-    //     }
+        // Remove the number part
+        let content = line.replace(/^#\s*(\d+)?\s*/, '').trim();
         
-    //     // Remove the number part
-    //     let content = line.replace(/^#\s*(\d+)?\s*/, '').trim();
-        
-    //     // Extract title
-    //     let titleMatch;
-    //     if (content.startsWith('"') && (titleMatch = content.match(/^"([^"]+)"/))) {
-    //         entry.title = titleMatch[1];
-    //         content = content.substring(titleMatch[0].length).trim();
-    //     } else if (content.startsWith('[') && (titleMatch = content.match(/^\[([^\]]+)\s+([^\]]+)\]/))) {
-    //         // Handle link format [https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]
-    //         const linkParts = titleMatch[1].split(' ');
-    //         const url = linkParts[0];
-    //         entry.title = titleMatch[2];
+        // Extract title
+        let titleMatch;
+        if (content.startsWith('"') && (titleMatch = content.match(/^"([^"]+)"/))) {
+            entry.title = titleMatch[1];
+            content = content.substring(titleMatch[0].length).trim();
+        } else if (content.startsWith('[') && (titleMatch = content.match(/^\[([^\]]+)\s+([^\]]+)\]/))) {
+            // Handle link format [https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]
+            const linkParts = titleMatch[1].split(' ');
+            const url = linkParts[0];
+            entry.title = titleMatch[2];
             
-    //         // Extract YouTube ID from URL
-    //         const ytIdMatch = url.match(/youtu\.be\/([^?&]+)|youtube\.com\/watch\?v=([^&]+)/);
-    //         if (ytIdMatch) {
-    //             entry.youtube = ytIdMatch[1] || ytIdMatch[2];
-    //         }
+            // Extract YouTube ID from URL
+            const ytIdMatch = url.match(/youtu\.be\/([^?&]+)|youtube\.com\/watch\?v=([^&]+)/);
+            if (ytIdMatch) {
+                entry.youtube = ytIdMatch[1] || ytIdMatch[2];
+            }
             
-    //         content = content.substring(titleMatch[0].length).trim();
-    //     }
+            content = content.substring(titleMatch[0].length).trim();
+        }
         
-    //     // Extract YouTube ID
-    //     const ytMatch = content.match(/{{yt\|([^}]+)}}/);
-    //     if (ytMatch) {
-    //         entry.youtube = ytMatch[1];
-    //         content = content.replace(ytMatch[0], '').trim();
-    //     }
+        // Extract YouTube ID
+        const ytMatch = content.match(/{{yt\|([^}]+)}}/);
+        if (ytMatch) {
+            entry.youtube = ytMatch[1];
+            content = content.replace(ytMatch[0], '').trim();
+        }
         
-    //     // Extract NND ID
-    //     const nndMatch = content.match(/{{nnd\|([^}]+)}}/);
-    //     if (nndMatch) {
-    //         entry.nnd = nndMatch[1];
-    //         content = content.replace(nndMatch[0], '').trim();
-    //     }
+        // Extract NND ID
+        const nndMatch = content.match(/{{nnd\|([^}]+)}}/);
+        if (nndMatch) {
+            entry.nnd = nndMatch[1];
+            content = content.replace(nndMatch[0], '').trim();
+        }
         
-    //     // Extract date (YYYY.MM.DD)
-    //     const dateMatch = content.match(/\((\d{4}\.\d{2}\.\d{2})\)/);
-    //     if (dateMatch) {
-    //         entry.date = dateMatch[1];
-    //         content = content.replace(dateMatch[0], '').trim();
-    //     }
+        // Extract date (YYYY.MM.DD)
+        const dateMatch = content.match(/\((\d{4}\.\d{2}\.\d{2})\)/);
+        if (dateMatch) {
+            entry.date = dateMatch[1];
+            content = content.replace(dateMatch[0], '').trim();
+        }
         
-    //     // Extract date with non-standard format
-    //     if (!entry.date) {
-    //         const altDateMatch = content.match(/\((\d{4})[.-](\d{1,2})[.-](\d{1,2})\)/);
-    //         if (altDateMatch) {
-    //             const year = altDateMatch[1];
-    //             const month = altDateMatch[2].padStart(2, '0');
-    //             const day = altDateMatch[3].padStart(2, '0');
-    //             entry.date = `${year}.${month}.${day}`;
-    //             content = content.replace(altDateMatch[0], '').trim();
-    //         }
-    //     }
+        // Extract date with non-standard format
+        if (!entry.date) {
+            const altDateMatch = content.match(/\((\d{4})[.-](\d{1,2})[.-](\d{1,2})\)/);
+            if (altDateMatch) {
+                const year = altDateMatch[1];
+                const month = altDateMatch[2].padStart(2, '0');
+                const day = altDateMatch[3].padStart(2, '0');
+                entry.date = `${year}.${month}.${day}`;
+                content = content.replace(altDateMatch[0], '').trim();
+            }
+        }
         
-    //     // Handle additional information - this is everything else except for some common patterns
-    //     content = content.trim();
+        // Handle community only tag
+        if (content.includes("'''(Community only)'''")) {
+            entry.additional += "(Community only) ";
+            content = content.replace("'''(Community only)'''", '').trim();
+        }
         
-    //     // Handle feat. artists and similar patterns before the date
-    //     const featMatch = content.match(/feat\.\s+(.+?)\s+\(\d{4}/i);
-    //     if (featMatch) {
-    //         const featText = featMatch[1];
-    //         // Remove this part from the date match but keep it for additional info
-    //         content = content.replace(`feat. ${featText}`, '').trim();
-    //         entry.additional += `feat. ${featText} `;
-    //     }
+        // Process remaining content for additional info
+        if (content) {
+            // Handle feat. pattern
+            const featMatch = content.match(/feat\.\s+(.+?)(?:\s+\(\d{4}|\s*$)/i);
+            if (featMatch) {
+                entry.additional += `feat. ${featMatch[1]} `;
+                content = content.replace(featMatch[0], '').trim();
+            }
+            
+            // Handle translations in parentheses
+            const translationMatch = content.match(/\(([^)]+)\)(?!\s*\(\d{4})/);
+            if (translationMatch) {
+                entry.additional += `(${translationMatch[1]}) `;
+                content = content.replace(translationMatch[0], '').trim();
+            }
+            
+            // Add any remaining content
+            if (content) {
+                entry.additional += content;
+            }
+        }
         
-    //     // Handle (singers x singers) pattern before the date
-    //     const singersMatch = content.match(/\(([^)]+)\)\s+\(\d{4}/);
-    //     if (singersMatch) {
-    //         const singersText = singersMatch[1];
-    //         // Remove this part from the date match but keep it for additional info
-    //         content = content.replace(`(${singersText})`, '').trim();
-    //         entry.additional += `(${singersText}) `;
-    //     }
+        // Clean up additional info
+        entry.additional = entry.additional.trim();
         
-    //     // Handle other information
-    //     if (content) {
-    //         entry.additional += content;
-    //     }
+        // If entry has minimum required data
+        if (entry.title) {
+            return entry;
+        }
         
-    //     // Clean up additional info
-    //     entry.additional = entry.additional.trim();
-        
-    //     // If entry has minimum required data
-    //     if (entry.title) {
-    //         return entry;
-    //     }
-        
-    //     return null;
-    // }
+        return null;
+    }
     
     // Render the table
     function renderTable() {
@@ -603,6 +590,97 @@ document.addEventListener('DOMContentLoaded', function() {
         yearFilter.selectedIndex = 0;
         renderTable();
         showToast('Filters have been reset', 'info');
+    }
+    
+    // Open raw data import modal
+    function openRawDataModal() {
+        rawDataInput.value = '';
+        rawDataModal.classList.remove('hidden');
+    }
+
+    // Close raw data import modal
+    function closeRawDataModal() {
+        rawDataModal.classList.add('hidden');
+    }
+
+    // Import raw data
+    function importRawData() {
+        const rawData = rawDataInput.value.trim();
+        
+        if (!rawData) {
+            showToast('Please enter playlist data to import', 'warning');
+            return;
+        }
+        
+        try {
+            // Check if the data has the expected format
+            if (!rawData.startsWith('{{Playlist|content') && !rawData.includes('#')) {
+                throw new Error('Invalid playlist format');
+            }
+            
+            // Parse the playlist entries
+            const entries = parseRawPlaylist(rawData);
+            
+            if (entries.length === 0) {
+                throw new Error('No valid entries found');
+            }
+            
+            // Add entries to the playlist
+            let addedCount = 0;
+            
+            entries.forEach(entry => {
+                if (entry && entry.title) {
+                    entry.id = nextId++;
+                    playlist.push(entry);
+                    addedCount++;
+                }
+            });
+            
+            // Close modal, render table, update filter
+            closeRawDataModal();
+            renderTable();
+            populateYearFilter();
+            
+            // Show success toast
+            showToast(`Successfully imported ${addedCount} entries`, 'success');
+        } catch (e) {
+            showToast(`Error importing data: ${e.message}`, 'error');
+        }
+    }
+
+    // Parse raw playlist data
+    function parseRawPlaylist(rawData) {
+        const entries = [];
+        
+        // Extract the content between the playlist tags
+        let content = rawData;
+        const playlistMatch = rawData.match(/{{Playlist\|content\s*=\s*([\s\S]*?)}}$/);
+        
+        if (playlistMatch && playlistMatch[1]) {
+            content = playlistMatch[1];
+        }
+        
+        // Split into lines
+        const lines = content.split('\n');
+        
+        // Process each line
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Skip empty lines
+            if (!line || !line.startsWith('#')) continue;
+            
+            try {
+                const entry = parseEntryLine(line);
+                if (entry) {
+                    entries.push(entry);
+                }
+            } catch (e) {
+                console.error(`Error parsing line ${i + 1}: ${line}`, e);
+            }
+        }
+        
+        return entries;
     }
     
     // Improved resetAll function with better confirmation
