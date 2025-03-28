@@ -508,11 +508,17 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTable();
     }
     const resetAllBtn = document.getElementById('reset-all-btn');
-    resetAllBtn.addEventListener('click', resetAll);
     
-    // Add this function to reset everything
-    function resetAll() {
-      if (confirm('Are you sure you want to reset everything? This will clear all playlist entries and cannot be undone.')) {
+    // Check if the element exists before adding an event listener
+    if (resetAllBtn) {
+        resetAllBtn.addEventListener('click', resetAll);
+    } else {
+        console.error("Element with id 'reset-all-btn' not found");
+    }
+});
+
+function resetAll() {
+    if (confirm('Are you sure you want to reset everything? This will clear all playlist entries and cannot be undone.')) {
         // Clear the playlist array
         playlist = [];
         nextId = 1;
@@ -528,6 +534,5 @@ document.addEventListener('DOMContentLoaded', function() {
         // Re-render the table and reset year filter options
         renderTable();
         populateYearFilter();
-      }
     }
-});
+}
