@@ -87,11 +87,6 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Hard-coded CSS content area -->
-        <div id="css-database" class="mt-6">
-            <!-- This will be populated with the hard-coded CSS data -->
-        </div>
     </div>
 
     <script>
@@ -114,7 +109,6 @@
             const cssFilesCount = document.getElementById('css-files-count');
             const showClassesOnly = document.getElementById('show-classes-only');
             const caseSensitive = document.getElementById('case-sensitive');
-            const cssDatabase = document.getElementById('css-database');
             
             // Search navigation elements
             const searchStats = document.getElementById('search-stats');
@@ -122,562 +116,6 @@
             const prevMatchBtn = document.getElementById('prev-match');
             const nextMatchBtn = document.getElementById('next-match');
             const matchPosition = document.getElementById('match-position');
-            
-            // Pre-defined CSS content (to avoid CORS issues)
-            // We'll use this as a fallback when direct fetching fails
-            const predefinedCSSContent = {
-                "MediaWiki:Common.css": `/* CSS placed here will be applied to all skins */
-
-/* Signature */
-.sigp {
-  margin-top: -40px;
-  font-size: 14px;
-  color: #656565;
-  font-style: italic;
-  font-weight: normal;
-}
-
-.mainspaceSig {
-  padding-left: 1em;
-  font-size: 11px;
-  font-style: italic;
-  font-weight: normal;
-  color: #222222;
-}
-
-/* Signature tabs */
-.tabBody {
-  background: #ddd;
-  border-radius: 0.25em;
-  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
-  padding: 0.5em;
-  margin-bottom: 1em;
-}
-
-.sigLink {
-  display: inline-block;
-  background: #bcbcbc;
-  border-radius: 0.25em 0.25em 0 0;
-  padding: 0.25em 0.5em;
-  margin-right: 0.2em;
-  color: white;
-  text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.sigLink.active {
-  background: #ddd;
-  color: #222222;
-  text-shadow: none;
-}
-
-/* Hide section indicators */
-.mw-headline-anchor { 
-  display: none; 
-}
-
-.hiddenSection {
-  display: none;
-}
-
-/* Toggleable tabs */
-.toggleNav {
-  text-align: center;
-  margin-bottom: 1em;
-}
-
-.toggleTab {
-  display: inline-block;
-  background: white;
-  border: 2px solid #ddd;
-  border-radius: 0.25em;
-  padding: 0.3em 0.75em;
-  margin: 0.25em;
-  text-decoration: none;
-  color: #454545;
-  transition: all 200ms;
-}
-
-.toggleTab:hover {
-  background: #ddd;
-  color: #232323;
-}
-
-.toggleTab.active {
-  background: #ddd;
-  color: #232323;
-  font-weight: bold;
-}
-
-.tabContent {
-  display: none;
-}
-
-.tabContent.show {
-  display: block;
-}
-
-/* Discography styles */
-.disco {
-  margin: 1em 0;
-  padding: 0.75em;
-  background: #f9f9f9;
-  border: 1px solid #f2f2f2;
-  border-radius: 0.25em;
-}
-
-.disco-date {
-  float: right;
-  font-style: italic;
-  color: #888;
-}
-
-.disco-title {
-  font-size: 1.1em;
-  font-weight: bold;
-  margin-bottom: 0.5em;
-}
-`,
-                "MediaWiki:Vector.css": `/* CSS placed here will affect users of the Vector skin */
-
-/* Signature */
-.sigp {
-  margin-top: -40px;
-  font-size: 14px;
-  color: #656565;
-  font-style: italic;
-  font-weight: normal;
-}
-
-.vector-nav {
-  background-color: #f8f9fa;
-}
-
-#p-personal {
-  font-size: 0.9em;
-}
-
-.vector-menu-dropdown {
-  border-radius: 3px;
-}
-
-/* Vector-specific layout modifications */
-.vector-body {
-  font-size: 0.95em;
-  line-height: 1.6;
-}
-
-#p-logo {
-  margin-bottom: 1em;
-}
-
-#mw-panel .portal {
-  margin: 0 0.6em 0 0.7em;
-}
-`,
-                "MediaWiki:Monobook.css": `/* CSS placed here will affect users of the Monobook skin */
-
-/* Monobook-specific layout adjustments */
-#globalWrapper {
-  margin: 0 10%;
-  padding: 0;
-  background: #f9f9f9;
-  border-radius: 5px;
-}
-
-#column-content {
-  margin: 0 0 0 12.2em;
-  padding-top: 1em;
-}
-
-#column-one {
-  padding-top: 160px;
-}
-
-#p-logo {
-  margin-top: -160px;
-}
-
-/* Sidebar improvements */
-div.portlet {
-  border-radius: 5px;
-  margin: 0 0 0.5em 0;
-}
-
-div.pBody {
-  background-color: #f8f8f8;
-  border: 1px solid #aaa;
-  border-radius: 0 0 5px 5px;
-}
-
-h5.portletHead {
-  background-color: #ddd;
-  border: 1px solid #aaa;
-  border-radius: 5px 5px 0 0;
-}
-
-/* Content styling */
-.monobook-body h1, 
-.monobook-body h2, 
-.monobook-body h3 {
-  border-bottom: 1px solid #ddd;
-}
-`,
-                "MediaWiki:Timeless.css": `/* CSS placed here will affect users of the Timeless skin */
-
-/* Timeless-specific styling */
-.color-bar {
-  height: 4px;
-  background: linear-gradient(to right, #3366cc, #66ccff);
-}
-
-.ts-inner {
-  max-width: 1200px;
-}
-
-.mw-wiki-logo {
-  background-size: contain;
-}
-
-/* Sidebar improvements */
-.sidebar-chunk {
-  background-color: #f8f9fa;
-  border-radius: 3px;
-  padding: 0.5em 1em;
-  margin-bottom: 1em;
-}
-
-/* Content styling */
-.mw-body {
-  font-size: 0.95em;
-  line-height: 1.6;
-}
-
-.mw-body h1, 
-.mw-body h2 {
-  border-bottom: 1px solid #eaecf0;
-  padding-bottom: 0.25em;
-}
-
-/* Tabs enhancement */
-#mw-content-tabs {
-  font-size: 0.9em;
-}
-
-.sidebar-inner {
-  font-size: 0.95em;
-}
-`
-            };
-            
-            // Additional CSS files with more class definitions
-            const additionalCSSContent = {
-                "MediaWiki:Gadget-SongArticleNotes.css": `/* CSS for Song Article Notes gadget */
-
-.song-article-note {
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 8px 12px;
-  margin: 10px 0;
-}
-
-.note-title {
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 4px;
-}
-
-.lyrics-note {
-  border-left: 3px solid #3366cc;
-}
-
-.translation-note {
-  border-left: 3px solid #cc6633;
-}
-
-.arrangement-note {
-  border-left: 3px solid #339966;
-}
-
-.video-note {
-  border-left: 3px solid #993399;
-}
-
-.note-source {
-  font-size: 0.9em;
-  color: #777;
-  font-style: italic;
-  text-align: right;
-}
-
-.collapsible-note {
-  position: relative;
-}
-
-.collapsible-note .note-toggle {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  cursor: pointer;
-  color: #555;
-}
-
-.note-content.collapsed {
-  display: none;
-}
-`,
-                "MediaWiki:Gadget-UtaiteBox.css": `/* CSS for Utaite Info Box */
-
-.utaite-box {
-  background: #f9f9f9;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-  width: 300px;
-  float: right;
-  margin: 0 0 1em 1em;
-  clear: right;
-}
-
-.utaite-box-title {
-  background: #eaecf0;
-  padding: 0.3em 0.6em;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-.utaite-box-image {
-  text-align: center;
-  padding: 10px;
-}
-
-.utaite-box-image img {
-  max-width: 250px;
-  border: 1px solid #ddd;
-}
-
-.utaite-box-content {
-  padding: 0 10px 10px;
-}
-
-.utaite-box-row {
-  border-bottom: 1px solid #eee;
-  padding: 5px 0;
-  display: flex;
-}
-
-.utaite-box-label {
-  width: 40%;
-  font-weight: bold;
-  color: #333;
-}
-
-.utaite-box-data {
-  width: 60%;
-}
-
-.utaite-social-links {
-  text-align: center;
-  padding: 5px;
-}
-
-.social-icon {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  margin: 0 5px;
-}
-`,
-                "MediaWiki:Gadget-Timeline.css": `/* CSS for Timeline gadget */
-
-.timeline-container {
-  position: relative;
-  max-width: 1200px;
-  margin: 20px auto;
-}
-
-.timeline-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 4px;
-  background: #ddd;
-  transform: translateX(-50%);
-}
-
-.timeline-item {
-  position: relative;
-  margin: 40px 0;
-  width: 50%;
-  box-sizing: border-box;
-}
-
-.timeline-item:nth-child(odd) {
-  padding-right: 40px;
-  text-align: right;
-  left: 0;
-}
-
-.timeline-item:nth-child(even) {
-  padding-left: 40px;
-  text-align: left;
-  left: 50%;
-}
-
-.timeline-content {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 15px;
-  position: relative;
-}
-
-.timeline-item:nth-child(odd) .timeline-content::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  right: -10px;
-  width: 20px;
-  height: 20px;
-  background: #f9f9f9;
-  border-right: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-  transform: rotate(45deg);
-}
-
-.timeline-item:nth-child(even) .timeline-content::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: -10px;
-  width: 20px;
-  height: 20px;
-  background: #f9f9f9;
-  border-left: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  transform: rotate(45deg);
-}
-
-.timeline-date {
-  display: inline-block;
-  background: #4285f4;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.9em;
-  margin-bottom: 10px;
-}
-
-.timeline-title {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.timeline-marker {
-  position: absolute;
-  top: 20px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #4285f4;
-  border: 3px solid white;
-  box-shadow: 0 0 0 2px #4285f4;
-}
-
-.timeline-item:nth-child(odd) .timeline-marker {
-  right: -10px;
-}
-
-.timeline-item:nth-child(even) .timeline-marker {
-  left: -10px;
-}
-`,
-                "MediaWiki:Gadget-CollabTable.css": `/* CSS for Collaboration Table gadget */
-
-.collab-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1em 0;
-  font-size: 0.95em;
-}
-
-.collab-table th {
-  background-color: #f2f2f2;
-  padding: 8px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-
-.collab-table td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  vertical-align: top;
-}
-
-.collab-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.collab-table tr:hover {
-  background-color: #f5f5f5;
-}
-
-.collab-date {
-  white-space: nowrap;
-  width: 120px;
-}
-
-.collab-title {
-  font-weight: bold;
-}
-
-.collab-members {
-  line-height: 1.5;
-}
-
-.collab-member {
-  display: inline-block;
-  margin-right: 8px;
-  margin-bottom: 4px;
-}
-
-.collab-tag {
-  display: inline-block;
-  background: #e0e0e0;
-  border-radius: 3px;
-  padding: 2px 6px;
-  margin: 2px;
-  font-size: 0.9em;
-}
-
-.collab-tag.original {
-  background: #d4edda;
-  color: #155724;
-}
-
-.collab-tag.cover {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-.collab-sort-btn {
-  cursor: pointer;
-  margin-left: 5px;
-  color: #777;
-}
-
-.collab-sort-btn:hover {
-  color: #333;
-}
-`
-            };
-            
-            // Merge both CSS content collections
-            Object.assign(predefinedCSSContent, additionalCSSContent);
             
             // Button event listeners
             fetchButton.addEventListener('click', fetchCSSFiles);
@@ -699,11 +137,16 @@ h5.portletHead {
                 cssFilesList.innerHTML = '';
                 
                 try {
-                    // We'll use our predefined CSS files since direct API calls will be blocked by CORS
-                    const cssPages = Object.keys(predefinedCSSContent).map(title => ({
-                        title: title,
-                        content: predefinedCSSContent[title]
-                    }));
+                    // API URL to get all pages in MediaWiki namespace with .css extension
+                    const apiUrl = 'https://utaite.fandom.com/api.php?action=query&list=allpages&apnamespace=8&apfrom=&aplimit=500&format=json&origin=*&apfilterredir=nonredirects';
+                    
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) throw new Error('Failed to fetch MediaWiki pages');
+                    
+                    const data = await response.json();
+                    
+                    // Filter for pages with .css extension
+                    const cssPages = data.query.allpages.filter(page => page.title.endsWith('.css'));
                     
                     if (cssPages.length === 0) {
                         cssFilesList.innerHTML = '<p class="text-red-500">No CSS files found</p>';
@@ -720,7 +163,8 @@ h5.portletHead {
                         cssFiles.push({
                             title: pageTitle,
                             url: pageUrl,
-                            content: page.content
+                            rawUrl: `https://utaite.fandom.com/wiki/${encodeURIComponent(pageTitle)}?action=raw`,
+                            content: null
                         });
                     });
                     
@@ -729,13 +173,10 @@ h5.portletHead {
                     cssFilesCount.textContent = `${cssFiles.length} files found`;
                     setLoading(false, `Found ${cssFiles.length} CSS files`);
                     
-                    // Extract all class names for the database
-                    extractAndDisplayClasses();
-                    
                 } catch (error) {
-                    console.error('Error loading CSS files:', error);
-                    cssFilesList.innerHTML = `<p class="text-red-500">Error loading CSS files: ${error.message}</p>`;
-                    setLoading(false, 'Error loading CSS files');
+                    console.error('Error fetching CSS files:', error);
+                    cssFilesList.innerHTML = `<p class="text-red-500">Error fetching CSS files: ${error.message}</p>`;
+                    setLoading(false, 'Error fetching CSS files');
                 }
             }
             
@@ -775,7 +216,7 @@ h5.portletHead {
                 cssFilesList.appendChild(fragment);
             }
             
-            function loadFileContent(index) {
+            async function loadFileContent(index) {
                 if (index < 0 || index >= cssFiles.length) return;
                 
                 const fileToLoad = cssFiles[index];
@@ -794,9 +235,30 @@ h5.portletHead {
                 // Show filename
                 currentFile.textContent = fileToLoad.title;
                 
-                // Display content
-                displayFileContent(index);
-                setLoading(false, `Loaded ${fileToLoad.title}`);
+                // If content is already loaded, just display it
+                if (fileToLoad.content !== null) {
+                    displayFileContent(index);
+                    return;
+                }
+                
+                // Otherwise, fetch the content
+                setLoading(true, `Loading ${fileToLoad.title}...`);
+                
+                try {
+                    const response = await fetch(fileToLoad.rawUrl);
+                    if (!response.ok) throw new Error(`Failed to fetch ${fileToLoad.title}`);
+                    
+                    const cssContent = await response.text();
+                    fileToLoad.content = cssContent;
+                    
+                    displayFileContent(index);
+                    setLoading(false, `Loaded ${fileToLoad.title}`);
+                    
+                } catch (error) {
+                    console.error(`Error loading file content for ${fileToLoad.title}:`, error);
+                    cssContent.innerHTML = `<p class="text-red-500">Error loading file content: ${error.message}</p>`;
+                    setLoading(false, 'Error loading file content');
+                }
             }
             
             function displayFileContent(index) {
@@ -846,81 +308,6 @@ h5.portletHead {
                 } else {
                     searchStats.classList.add('hidden');
                 }
-            }
-            
-            function extractAndDisplayClasses() {
-                const allClasses = new Map(); // Map to store unique classes and their references
-                
-                // Extract classes from all CSS files
-                cssFiles.forEach(file => {
-                    const content = file.content;
-                    
-                    // Extract class selectors using regex
-                    const selectorRegex = /([.][a-zA-Z0-9_-]+)[^{]*{/g;
-                    let match;
-                    
-                    while ((match = selectorRegex.exec(content)) !== null) {
-                        const fullSelector = match[0].substring(0, match[0].length - 1).trim();
-                        const className = match[1].substring(1); // Remove the leading dot
-                        
-                        if (className) {
-                            if (!allClasses.has(className)) {
-                                allClasses.set(className, []);
-                            }
-                            
-                            allClasses.get(className).push({
-                                selector: fullSelector,
-                                file: file.title
-                            });
-                        }
-                    }
-                });
-                
-                // Convert to array and sort alphabetically
-                const sortedClasses = Array.from(allClasses.entries())
-                    .sort((a, b) => a[0].localeCompare(b[0]));
-                
-                // Create the database HTML
-                let html = `
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h2 class="text-xl font-semibold mb-4 text-indigo-600">Class Database</h2>
-                        <div class="text-sm text-gray-600 mb-4">Found ${sortedClasses.length} unique classes across ${cssFiles.length} files</div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                `;
-                
-                // Add each class with its references
-                sortedClasses.forEach(([className, occurrences]) => {
-                    html += `
-                        <div class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50">
-                            <div class="font-mono text-indigo-600 font-semibold mb-2">.${className}</div>
-                            <div class="text-xs text-gray-500 mb-1">Found in ${occurrences.length} place(s):</div>
-                            <ul class="text-xs text-gray-600">
-                    `;
-                    
-                    // Limit to first 3 occurrences to keep it clean
-                    const displayOccurrences = occurrences.slice(0, 3);
-                    displayOccurrences.forEach(occurrence => {
-                        const fileName = occurrence.file.split(':').pop();
-                        html += `<li>• ${fileName}: <span class="font-mono">${occurrence.selector}</span></li>`;
-                    });
-                    
-                    // Show message if there are more occurrences
-                    if (occurrences.length > 3) {
-                        html += `<li class="text-gray-500 italic">+ ${occurrences.length - 3} more...</li>`;
-                    }
-                    
-                    html += `
-                            </ul>
-                        </div>
-                    `;
-                });
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-                
-                cssDatabase.innerHTML = html;
             }
             
             function highlightCSSSyntax(css) {
@@ -1099,7 +486,6 @@ h5.portletHead {
                 currentMatchIndex = -1;
                 cssFilesList.innerHTML = '<p class="text-gray-500 italic">No files loaded yet</p>';
                 cssContent.innerHTML = '<p class="text-gray-500 italic">Select a CSS file to view its content</p>';
-                cssDatabase.innerHTML = '';
                 currentFile.textContent = '';
                 searchInput.value = '';
                 showClassesOnly.checked = false;
