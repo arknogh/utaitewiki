@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Playlist CRUD Interface</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .entry-row:hover {
             background-color: rgba(59, 130, 246, 0.1);
@@ -186,86 +186,17 @@
             // Parse initial playlist
             function parseInitialPlaylist() {
                 const playlistData = `{{Playlist|content = 
-# "Zetsubou-Sensei ga Jisatsu Shinai" {{nnd|sm1459793}} (2007.11.05) '''(Deleted)'''
-# "Kumikyoku" {{nnd|sm1635041}} (2007.11.27) '''(Deleted)'''
-# "Zetsubou-Sensei mitai kanji de Zettsubou" {{yt|Z8CdxZ_NRdY}} {{nnd|sm1751989}} (2007.12.11)
-# "MAD No Zetsubou" {{nnd|sm1789366}} (MAD's Despair) (2007.12.16)
-# "Zesshou wo uP Suru Kimochi Ni Kae" {{nnd|sm1839378}} (2007.12.22)
-# "Zessei Bijin" {{yt|QIZ--XtYLI0}} {{nnd|sm1918126}} (Absolute Beauty) (2007.12.31) '''(YT Video Deleted)'''
-# "Mc. Donald wa Dance ni Muchuu nano ka?" {{yt|5byhnwcGjUA}} {{nnd|sm2000680}} (2008.01.10)
-# "Sukoshi Itoshiki Fuumina Kuusou Rumba + α" {{yt|YpxC1fjJxJo}} {{nnd|sm2171850}} feat. Limone-Sensei and [[ONO]] (2008.01.29) '''(Deleted)'''
-# "Nico Nico Douga Urakumikyoku" {{nnd|sm2226999}} (2008.02.04) '''(Deleted)'''
-# "FIVE LEAF" {{yt|IsmVAv9bU2o}} {{nnd|sm2317098}} (2008.02.13) '''(YT Video Deleted)'''
-# "Danjo" {{yt|oc3ht5J9u3A}} {{nnd|sm2376149}} (2008.02.19)
-# "Yuki, Muon, Madobe ni Te." {{nnd|nm2706250}} (Snow, Silence, by the Window.) (2008.03.19)
-# "Ievan Polkka" {{yt|wkes6j1q5V8}} {{nnd|sm2759599}} (2008.03.23)
-# "U.N. Owen wa Kumikyoku Nico Nico Douga na no Ka?" {{nnd|sm2826931}} (2008.03.29)
-# "Kumikyoku Nico Nico Douga" {{nnd|sm2851548}} (2008.03.31)
-# "Zetsubou-MAD JOINT" {{nnd|sm2966709}} (2008.04.11)
-# "Nico Nico Douga Ryuuseigun" {{nnd|sm2988082}} (2008.04.13)
-# "Cho www Rap He No Michi ww" {{yt|MK2KMbTfors}} {{nnd|sm3044453}} feat. Limone-Sensei, [[Rap-bit]] and [[Kunikida]] (2008.04.19)
-# "Nico Nico Douga Ryuuseigun" {{nnd|sm3054860}} (2008.04.20)
-# "Yu-Gi-Oh! BGM Dark Magician" {{nnd|sm3162552}} (2008.05.01)
-# "Nico Nico Douga Miro" {{nnd|sm3264688}} (2008.05.10)
-# "Zetsubou desho desho" {{nnd|sm3310376}} (2008.05.14)
-# "Zetsubou desho desho" {{nnd|sm3347065}} (full)" (2008.05.17)
-# "Ievan Polka (101 singers collab)" {{nnd|sm3347566}} (2008.05.17) '''(Deleted)'''
-# "Ikemen Break Kougyou" {{yt|9eHF8-YL3sM}} {{nnd|sm3577715}} (2008.06.06) '''(YT Video Deleted)'''
-# "Seiko Densetsu 2 (Seiken 2 x Kiwami)" {{nnd|sm3628440}} (2008.06.11)
-# "Ura no Ura Ongakusai" {{nnd|sm3717376}} (2008.06.21)
-# "Ore no Road-Roller!" {{nnd|sm3800205}} feat. Limone-Sensei and [[Harumaki]] (2008.06.28)
-# "Hikyou Sentai Urotander" {{nnd|sm4056567}} (Mean Force Urotander) (2008.07.23)
-# "Black Rock★Shooter" {{yt|yFXni6Nj8QI}} {{nnd|sm4099540}}　(2008.07.27)
-# "Gekokujou" {{yt|lZ_HPNGFteQ}} {{nnd|sm4162359}} (Revolution) (2008.08.02)
-# "Ability To Stir The Audience" {{nnd|sm4178407}} (2008.08.04)
-# "Yield" {{nnd|sm4610811}} (2008.09.13)
-# "Saisoku Saikou Shuttergirl" {{nnd|sm4615269}} (The Fastest Highest Shutter Girl) feat. Limone-Sensei and [[Hanagoe]] (2008.09.13) '''(Privated)'''
-# "Veda is Mine" {{nnd|sm4623935}} (2008.09.14)
-# "Dancing☆Samurai" {{yt|F-l-HGlACHQ}} {{nnd|sm4677621}} (2008.09.19)
-# "Sayonara Zetsubou Ryuuseigun" {{nnd|sm4841416}} (2008.10.05)
-# "Cheeta man" {{nnd|sm5044087}} feat. Limone-Sensei and [[Kettaro]] (2008.10.25)
-# "Gocchani!" {{nnd|sm6257028}} (2009.02.24)
-# "Saihate" {{yt|ba3kJdjpxv0}} {{nnd|sm6305443}} (2009.03.01) '''(YT Video Deleted)'''
-# "Natsu Yuzora" {{nnd|sm6628498}} (2009.04.02)
-# "Double Lariat" {{nnd|sm6938564}} (2009.05.03)
-# "Super Hako Motherfucker" {{yt|r36QGwOVTeA}} {{nnd|sm7011097}} feat. Limone-Sensei and [[Shita]] (2009.05.10)
-# "Jingoku Shoujo Ni Buryoku Kainyuu Shita" {{nnd|sm7246265}} (2009.06.04)
-# "ZOU" {{nnd|sm7754041}} (2009.07.26)
-# "Kurayami Shinjuu Soushi Souai" {{yt|Sah2YmotssU}} {{nnd|sm8135091}} (2009.09.04)
-# "Dango Daikazoku" {{nnd|sm8327831}} (2009.09.24) '''(Deleted)'''
-# "Oppai Oppai-Mime MimexHiroshi Kamiya" {{yt|36SSyrWJUK4}} {{nnd|sm8689096}} (2009.11.02)
-# "Homosapiens Rapsody" {{nnd|sm9236346}} (2009.12.29)
-# "Toeto" {{yt|UuJWnLBKOTE}} {{nnd|sm9516615}} (2010.01.27)
-# "Ringo Mogire Beam Rap" {{yt|T8UngAkCsQQ}} {{nnd|sm9525715}} feat. Limone-Sensei and [[Rap-bit]] (2010.01.28)
-# "Orihara Izaya to Shizuo no Gourmet Race" {{yt|ITtTl-7CSLQ}} {{nnd|sm9591136}} (2010.02.03) '''(Deleted)'''
-# "Hito Lovers" {{yt|emMDHqoa6Mw}} {{nnd|sm9748350}} (Ura Omote Lovers Parody) (2010.02.17) '''(YT Video Deleted)'''
-# "Uzaya Circulation" {{yt|nfvZinjiy_g}} {{nnd|sm9910384}} (Renai Circulation Parody) (2010.03.04) '''(YT Video Deleted)'''
-# "Rolling Girl" {{yt|6O7nG_z7sfM}} {{nnd|sm10039922}}　(2010.03.15)
-# "Just Be Friends" {{yt|6YiGyuEwsn8}} {{nnd|sm10159350}} -Wanko ver.- feat. Limone Sensei and [[Rap-bit]] (2010.03.25)
-# "1925" {{yt|xrQuImozKLY}} {{nnd|sm10471609}} (2010.04.22)
-# "Guriguri Megane to Gekkouchuu" {{nnd|sm10776082}} (2010.05.19)
-# "Uzai Kinou" {{yt|RKVWaW69npM}} {{nnd|sm10938669}} (Ochame Kinou/Fukkireta Parody) (2010.06.03)
-# "E? Aa, Sou." {{yt|FUl69ni3pr4}} {{nnd|sm11181147}} (2010.06.25) '''(YT Video Deleted)'''
-# "Uragiri No Yuuyake" {{nnd|nm11302239}} feat. [[Mi-chan]] (vocals), [[【Ren】]] (chorus), Limone-Sensei (talking) (2010.07.06)
-# "Petenshi ga Warau Koro ni" {{yt|jdFU1I9u-YY}} {{nnd|sm11330639}} (When the Crooks Laugh) (2010.07.09)
-# "NICO NICO DISCO" {{nnd|sm11457029}} (2010.07.20)
-# "Oku Hanako CM" {{yt|k0F4vKR1jM0}} {{nnd|sm11492671}} (2010.07.23)
-# "magnet" {{yt|oTHvsHDsdS4}} {{nnd|sm11538402}} feat. Limone-Sensei and [[Hanagoe]] (2010.07.27) '''(Privated)'''
-# "ZOU+" {{nnd|sm11716089}} (2010.08.11)
-# "Panda Hero" {{yt|dUIp5dDYkIU}} {{nnd|sm14158690}} (2011.04.14) '''(YT Video Deleted)'''
-# "PONPONPON" {{nnd|sm16389680}} -acoustic guitar.ver- (2011.12.10)
-# "Smiling" {{yt|BTcQM0sARSQ}} {{nnd|sm13012027}} -[[Smiling#Re:Member|＊Re:Member ver.]]- (collab) (2010.12.13) '''(Not in Mylist)'''
-# "Sakura Zensen Ijou Nashi" {{nnd|sm16552750}} (All Quiet on the Cherry Blossom Front) feat. Limone-Sensei and [[Ayakawa Yukiya]] (2011.12.28)
-# "Kagerou Days" {{yt|iZZCzZraviw}} {{nnd|sm16756628}} (Heat-Haze Days) (2012.01.21) '''(YT Video Deleted)'''
-# "Dai Ichiji Jibun Sensou" {{yt|B_4-LbLSBLQ}} {{nnd|sm17043933}} feat. Limone Sensei and [[Morinaga]] (2012.02.22) '''(YT Video Deleted)'''
-# "Yumekui Shirokuro Baku" {{yt|BBoRIqpi4fQ}} {{nnd|sm18476428}} (Dream-eating Monochrome Baku) -Rap ver.- feat. Limone-Sensei and [[Tightson]] (2012.07.29)
-# "Nou Shou Sakuretsu Girl" {{nnd|sm20512630}} (Gray Matter Explosion Girl) feat. Limone-Sensei and [[Morinaga]] (2013.04.03)
-# "Gishinanki" {{nnd|sm29023282}} (Jumping at Shadows) feat. Limone-sensei and [[Morinaga]] (2016.06.10)
-# "Outsider" {{yt|k1ZMOBRRxtY}} {{nnd|sm33298777}} feat. Limone-sensei (2018.06.01)
-# "[https://youtu.be/ygKLcVPYpcY Jigsaw Puzzle]" (2019.01.19)
-# "[https://youtu.be/2ivoSpTTgpc Idea]" (2019.08.18)
-{{Notice/missingcontent}}
-# "main dish ga taritenai" {{yt|g5nF3Mnrbrs}} (Amatsuki x [[96Neko]] x [[Shima]] x [[Limone-Sensei]]) (2025.03.23)
+# "Connecting❀Flowers' edition" {{nnd|sm26349261}} feat. [[Izu]], [[Houkago no Aitsu]], Wolpis Kater, [[Ikasan]], [[Mikaru]], [[Risru]], [[Kyaren.]] and [[Kurokumo]] (2015.05.27)
+# "Sore ga Anata no Shiawase to Shite mo" {{nnd|sm26442500}} (Even if that is Your Happiness) (2015.06.10)
+# "Rokuchounen to Ichiya Monogatari" {{nnd|sm26582278}} (Six Trillion Years and Overnight Story) (2015.06.27)
+# "Balleriko" {{nnd|sm26802476}} (Ballerina Girl) (2015.07.28)
+# "Logic Agent" {{nnd|sm26860572}} (2015.08.05)
+# "Souzou Forest" {{nnd|sm26918252}} (Imagination Forest) (Entry of [[Utattemita Tours/2015#KagePro Utattemita Tour|KagePro Utattemita Tour]]) (2015.08.16)
+# "Kuusou Ressha" {{yt|gcCqclvIcn4}} {{nnd|sm27099984}} (Sky Symphony Train) (2015.09.06)
+# "Kokoronashi" {{nnd|sm27216963}} (No Heart) (2015.09.23)
+# "Hana Fubuki" {{nnd|sm27286744}} ([[wikipedia:Touken Ranbu|Touken Ranbu]] song; Original Song with {{VW|PolyphonicBranch}}) (2015.10.03)
+# "Sekai wo Kowashite Iru" {{nnd|sm27333213}} (Terminating the World) (2015.10.10)
+
 }}`;
 
                 const lines = playlistData.split('\n');
