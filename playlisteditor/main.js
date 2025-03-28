@@ -507,4 +507,27 @@ document.addEventListener('DOMContentLoaded', function() {
         yearFilter.selectedIndex = 0;
         renderTable();
     }
+    const resetAllBtn = document.getElementById('reset-all-btn');
+    resetAllBtn.addEventListener('click', resetAll);
+    
+    // Add this function to reset everything
+    function resetAll() {
+      if (confirm('Are you sure you want to reset everything? This will clear all playlist entries and cannot be undone.')) {
+        // Clear the playlist array
+        playlist = [];
+        nextId = 1;
+        
+        // Clear the input and output fields
+        inputText.value = '';
+        outputText.value = '';
+        
+        // Reset filters
+        searchInput.value = '';
+        yearFilter.selectedIndex = 0;
+        
+        // Re-render the table and reset year filter options
+        renderTable();
+        populateYearFilter();
+      }
+    }
 });
