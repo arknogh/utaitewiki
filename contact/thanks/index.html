@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta http-equiv="refresh" content="5;url=https://arknogh.github.io/utaitewiki">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl p-8 max-w-md w-full border border-gray-100 text-center">
+        <div class="mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Thank You!</h1>
+            <p class="text-gray-600 text-lg">Your message has been sent successfully.</p>
+        </div>
+        
+        <p class="text-gray-500 mb-6">We'll get back to you as soon as possible.</p>
+        
+        <div class="relative pt-1 mb-6">
+            <div class="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
+                <div id="progress-bar" class="rounded bg-blue-500 w-0 transition-all duration-500 ease-out"></div>
+            </div>
+        </div>
+        
+        <p class="text-sm text-gray-500">
+            Redirecting to <a href="https://arknogh.github.io/utaitewiki" class="text-blue-600 hover:underline">Utaite Wiki</a> in <span id="countdown">5</span> seconds...
+        </p>
+        
+        <a href="https://arknogh.github.io/utaitewiki" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+            Return Now
+        </a>
+    </div>
+
+    <script>
+        // Countdown timer
+        let seconds = 5;
+        const countdownElement = document.getElementById('countdown');
+        const progressBar = document.getElementById('progress-bar');
+        
+        // Initialize progress bar
+        progressBar.style.width = '0%';
+        
+        // Update countdown every second
+        const interval = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+            
+            // Update progress bar (100% - 0% as we count down)
+            const progress = (5 - seconds) / 5 * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            if (seconds <= 0) {
+                clearInterval(interval);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
