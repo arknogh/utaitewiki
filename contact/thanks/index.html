@@ -3,38 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You</title>
+    <title>Thank You | Utaite Wiki Fandom</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <meta http-equiv="refresh" content="5;url=https://arknogh.github.io/utaitewiki">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f7ff',
+                            100: '#e0eefe',
+                            200: '#bae0fd',
+                            300: '#7cc7fc',
+                            400: '#38acf8',
+                            500: '#0e93ea',
+                            600: '#0072c8',
+                            700: '#0059a2',
+                            800: '#064b85',
+                            900: '#0a406e',
+                        },
+                        secondary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s ease-in-out infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: fall 5s ease-out forwards;
+        }
+        
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                top: -10%;
+                transform: translateX(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                top: 100%;
+                transform: translateX(100px) rotate(360deg);
+            }
+        }
+        
+        .svg-background {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .paper-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl p-8 max-w-md w-full border border-gray-100 text-center">
-        <div class="mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Thank You!</h1>
-            <p class="text-gray-600 text-lg">Your message has been sent successfully.</p>
-        </div>
+<body class="font-sans bg-gradient-to-br from-primary-50 via-white to-secondary-50 min-h-screen svg-background flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+    <!-- Confetti elements -->
+    <div id="confetti-container"></div>
+    
+    <div class="glass-effect rounded-2xl paper-shadow p-8 sm:p-10 relative max-w-md w-full mx-auto transform transition-all duration-300 hover:scale-[1.02] overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute -top-20 -right-20 w-40 h-40 bg-primary-200 rounded-full opacity-20"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-secondary-200 rounded-full opacity-20"></div>
         
-        <p class="text-gray-500 mb-6">We'll get back to you as soon as possible.</p>
-        
-        <div class="relative pt-1 mb-6">
-            <div class="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
-                <div id="progress-bar" class="rounded bg-blue-500 w-0 transition-all duration-500 ease-out"></div>
+        <div class="relative z-10 text-center">
+            <!-- Success icon with animation -->
+            <div class="mb-8 inline-flex items-center justify-center">
+                <div class="relative">
+                    <div class="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center animate-pulse-slow">
+                        <div class="w-16 h-16 rounded-full bg-green-200 flex items-center justify-center">
+                            <i class="fas fa-check text-4xl text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="absolute -top-2 -right-2 animate-float">
+                        <i class="fas fa-envelope-open-text text-2xl text-secondary-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-gray-800 mb-3 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">Thank You!</h1>
+            <p class="text-gray-700 text-lg mb-2">Your message has been sent successfully.</p>
+            <p class="text-gray-600 mb-6">We'll review your feedback and get back to you shortly.</p>
+            
+            <!-- Progress bar -->
+            <div class="relative pt-1 mb-6 max-w-xs mx-auto">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-semibold inline-block text-primary-600">
+                        Redirecting...
+                    </div>
+                    <div class="text-xs font-semibold inline-block text-primary-600">
+                        <span id="countdown">5</span>s
+                    </div>
+                </div>
+                <div class="overflow-hidden h-2 text-xs flex rounded-full bg-gray-200">
+                    <div id="progress-bar" class="rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 w-0 transition-all duration-1000 ease-out"></div>
+                </div>
+            </div>
+            
+            <p class="text-sm text-gray-500 mb-6">
+                You'll be redirected to <a href="https://arknogh.github.io/utaitewiki" class="text-primary-600 hover:text-primary-700 font-medium transition-colors hover:underline">the index page</a> automatically
+            </p>
+            
+            <!-- Action buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="https://arknogh.github.io/utaitewiki" class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-medium rounded-lg hover:from-primary-700 hover:to-secondary-700 transition-all duration-300 shadow-md">
+                    <i class="fas fa-home mr-2"></i>
+                    Return Now
+                </a>
+                <a href="https://arknogh.github.io/utaitewiki/contact/" class="inline-flex items-center justify-center px-6 py-2.5 bg-white text-gray-700 font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-all duration-300">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Send Another Message
+                </a>
+            </div>
+            
+            <!-- What happens next -->
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">What happens next?</h3>
+                <div class="flex items-start space-x-2 mb-2 text-left">
+                    <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                    <p class="text-xs text-gray-600">Ark will review your message within 24-48 hours</p>
+                </div>
+<!--                 <div class="flex items-start space-x-2 text-left">
+                    <i class="fas fa-check-circle text-green-500 mt-0.5 flex-shrink-0"></i>
+                    <p class="text-xs text-gray-600">You'll receive a confirmation email with your ticket number</p>
+                </div> -->
             </div>
         </div>
-        
-        <p class="text-sm text-gray-500">
-            Redirecting to <a href="https://arknogh.github.io/utaitewiki" class="text-blue-600 hover:underline">Utaite Wiki</a> in <span id="countdown">5</span> seconds...
-        </p>
-        
-        <a href="https://arknogh.github.io/utaitewiki" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-            Return Now
-        </a>
     </div>
 
     <script>
+        // Create confetti
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#38acf8', '#0e93ea', '#7cc7fc', '#8b5cf6', '#a78bfa', '#c4b5fd'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animationDelay = `${Math.random() * 5}s`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                
+                container.appendChild(confetti);
+            }
+        }
+        
         // Countdown timer
         let seconds = 5;
         const countdownElement = document.getElementById('countdown');
@@ -48,7 +204,7 @@
             seconds--;
             countdownElement.textContent = seconds;
             
-            // Update progress bar (100% - 0% as we count down)
+            // Update progress bar (0% - 100% as we count down)
             const progress = (5 - seconds) / 5 * 100;
             progressBar.style.width = `${progress}%`;
             
@@ -56,6 +212,9 @@
                 clearInterval(interval);
             }
         }, 1000);
+        
+        // Create confetti on page load
+        document.addEventListener('DOMContentLoaded', createConfetti);
     </script>
 </body>
 </html>
