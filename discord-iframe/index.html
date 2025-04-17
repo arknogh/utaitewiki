@@ -213,6 +213,10 @@
             flex: 1;
             min-width: 0;
             overflow: hidden;
+            text-align: center; /* Center the text */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content vertically */
         }
         
         .discord-member-name {
@@ -222,6 +226,8 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            width: 100%; /* Allow the name to take full width for proper centering */
+            text-align: center; /* Ensure text is centered */
         }
         
         .discord-theme-light .discord-member-name {
@@ -235,6 +241,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             margin-top: 3px;
+            width: 100%; /* Allow the game status to take full width for proper centering */
+            text-align: center; /* Ensure text is centered */
         }
         
         .discord-theme-light .discord-member-game {
