@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Template Transclusion Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .entry-row:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        textarea {
+            resize: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-center">Playlist Template Transclusion Builder</h1>
+        
+        <!-- Input text box (not needed)
+        <div class="mb-6">
+            <label for="input-text" class="block text-sm font-medium text-gray-700 mb-2">Input:</label>
+            <textarea id="input-text" class="w-full h-32 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+            <div class="flex justify-end mt-2">
+                <button id="parse-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Parse Entry</button>
+                <button id="clear-input-btn" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Clear</button>
+            </div>
+        </div> -->
+        
+        <!-- CRUD Controls -->
+        <div class="flex mb-4 justify-between items-center">
+            <h2 class="text-xl font-semibold">Playlist Entries</h2>
+            <div>
+                <button id="import-raw-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Import Raw Data</button>
+                <button id="add-btn" class="ml-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">Add New</button>
+                <button id="generate-btn" class="ml-2 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md">Generate Output</button>
+                <button id="reset-all-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md ml-2">Reset All</button>
+            </div>
+        </div>
+        
+        <!-- Filter Controls -->
+        <div class="flex mb-4 space-x-2">
+            <input type="text" id="search-input" placeholder="Search..." class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select id="year-filter" class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Years</option>
+            </select>
+            <button id="reset-filter-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Reset Filters</button>
+        </div>
+        
+        <!-- CRUD Table -->
+        <div class="overflow-x-auto mb-6">
+            <table class="min-w-full bg-white border border-gray-300 shadow-sm rounded-md">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700">
+                        <th class="py-3 px-4 text-left border-b">#</th>
+                        <th class="py-3 px-4 text-left border-b">Title</th>
+                        <th class="py-3 px-4 text-left border-b">YouTube</th>
+                        <th class="py-3 px-4 text-left border-b">NND</th>
+                        <th class="py-3 px-4 text-left border-b">Date</th>
+                        <th class="py-3 px-4 text-left border-b">Additional Info</th>
+                        <th class="py-3 px-4 text-center border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="playlist-table">
+                    <!-- Table rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Output text box -->
+        <div>
+            <label for="output-text" class="block text-sm font-medium text-gray-700 mb-2">Output:</label>
+            <textarea id="output-text" class="w-full h-48 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" readonly></textarea>
+            <div class="flex justify-end mt-2">
+                <button id="copy-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Copy to Clipboard</button>
+                <button id="clear-output-btn" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Clear</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit/Add Modal -->
+    <div id="entry-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+            <h2 id="modal-title" class="text-xl font-bold mb-4">Edit Entry</h2>
+            <form id="entry-form">
+                <input type="hidden" id="entry-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="entry-number" class="block text-sm font-medium text-gray-700 mb-1">Entry Number:</label>
+                        <input type="number" id="entry-number" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="entry-title" class="block text-sm font-medium text-gray-700 mb-1">Title:</label>
+                        <input type="text" id="entry-title" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="entry-youtube" class="block text-sm font-medium text-gray-700 mb-1">YouTube ID:</label>
+                        <input type="text" id="entry-youtube" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="entry-nnd" class="block text-sm font-medium text-gray-700 mb-1">NND ID:</label>
+                        <input type="text" id="entry-nnd" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="entry-date" class="block text-sm font-medium text-gray-700 mb-1">Date (YYYY.MM.DD):</label>
+                        <input type="text" id="entry-date" class="w-full p-2 border border-gray-300 rounded-md" pattern="\d{4}\.\d{2}\.\d{2}" placeholder="YYYY.MM.DD">
+                    </div>
+                    <div>
+                        <label for="entry-additional" class="block text-sm font-medium text-gray-700 mb-1">Additional Info:</label>
+                        <input type="text" id="entry-additional" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="modal-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Cancel</button>
+                    <button type="submit" id="modal-save" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 id="delete-modal-title" class="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <div id="delete-modal-description"></div>
+            <input type="hidden" id="delete-entry-id">
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" id="delete-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Cancel</button>
+                <button type="button" id="delete-confirm" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="raw-data-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
+            <h2 class="text-xl font-bold mb-4">Import Raw Playlist Data</h2>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">Paste your raw playlist data in the format:</p>
+                <p class="text-sm bg-gray-100 p-2 rounded mb-2 font-mono text-xs">{{Playlist|content=<br/># "Title" {{nnd|smXXXXX}} (Additional Info) (YYYY.MM.DD)<br/># ...</p>
+            </div>
+            <textarea id="raw-data-input" class="w-full h-64 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Paste raw playlist data here..."></textarea>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" id="raw-data-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-md">Cancel</button>
+                <button type="button" id="raw-data-import" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md">Import Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./main.js"></script>
+</body>
+</html>

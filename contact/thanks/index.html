@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You | Utaite Wiki Fandom</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <meta http-equiv="refresh" content="5;url=https://arknogh.github.io">
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary-50: #f0f7ff;
+            --color-primary-100: #e0eefe;
+            --color-primary-200: #bae0fd;
+            --color-primary-300: #7cc7fc;
+            --color-primary-400: #38acf8;
+            --color-primary-500: #0e93ea;
+            --color-primary-600: #0072c8;
+            --color-primary-700: #0059a2;
+            --color-primary-800: #064b85;
+            --color-primary-900: #0a406e;
+            
+            --color-secondary-50: #f5f3ff;
+            --color-secondary-100: #ede9fe;
+            --color-secondary-200: #ddd6fe;
+            --color-secondary-300: #c4b5fd;
+            --color-secondary-400: #a78bfa;
+            --color-secondary-500: #8b5cf6;
+            --color-secondary-600: #7c3aed;
+            --color-secondary-700: #6d28d9;
+            --color-secondary-800: #5b21b6;
+            --color-secondary-900: #4c1d95;
+            
+            --font-family-sans: 'Inter', system-ui, sans-serif;
+            
+            @keyframes float_kf {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            @keyframes fall_kf {
+                0% { opacity: 1; top: -10%; transform: translateX(0) rotate(0deg); }
+                100% { opacity: 0; top: 100%; transform: translateX(100px) rotate(360deg); }
+            }
+        }
+        
+        /* Custom Components/Utilities */
+        .glass-effect {
+            @apply bg-white/80 dark:bg-slate-800/60 backdrop-blur-md border border-gray-200/80 dark:border-slate-700/50;
+        }
+        .paper-shadow {
+            @apply shadow-xl dark:shadow-slate-900/50;
+        }
+        .pulse-slow {
+            animation: pulse 3s ease-in-out infinite;
+        }
+        .animate-float {
+            animation: float_kf 3s ease-in-out infinite;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: fall_kf 5s ease-out forwards;
+        }
+        .svg-background {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    </style>
+</head>
+<body class="font-sans bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:bg-slate-800 min-h-screen svg-background flex items-center justify-center p-4 sm:p-6 overflow-hidden transition-colors duration-300">
+    <div id="confetti-container"></div>
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-indigo-100 dark:border-slate-700/60 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform duration-200"></i>
+                <span>Back to Home</span>
+            </a>
+            <div class="flex items-center space-x-3">
+                <a href="https://utaite.fandom.com/wiki/" target="_blank"><span class="inline-block text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">Utaite Wiki Fandom</span></a>
+                <button id="themeToggleBtn" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" aria-label="Toggle theme">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="glass-effect rounded-2xl paper-shadow p-8 sm:p-10 relative max-w-md w-full mx-auto transform transition-all duration-300 hover:scale-[1.02] overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-40 h-40 bg-primary-200 dark:bg-primary-700/40 rounded-full opacity-30 dark:opacity-50"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-secondary-200 dark:bg-secondary-700/40 rounded-full opacity-30 dark:opacity-50"></div>
+        <div class="relative z-10 text-center">
+            <div class="mb-8 inline-flex items-center justify-center">
+                <div class="relative">
+                    <div class="w-24 h-24 rounded-full bg-green-100 dark:bg-green-700/30 flex items-center justify-center pulse-slow">
+                        <div class="w-16 h-16 rounded-full bg-green-200 dark:bg-green-600/40 flex items-center justify-center">
+                            <i class="fas fa-check text-4xl text-green-500 dark:text-green-400"></i>
+                        </div>
+                    </div>
+                    <div class="absolute -top-2 -right-2 animate-float">
+                        <i class="fas fa-envelope-open-text text-2xl text-secondary-400 dark:text-secondary-300"></i>
+                    </div>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-50 mb-3 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">Thank You!</h1>
+            <p class="text-gray-700 dark:text-gray-300 text-lg mb-2">Your message has been sent successfully.</p>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">We'll review your feedback and get back to you shortly.</p>
+            <div class="relative pt-1 mb-6 max-w-xs mx-auto">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-semibold inline-block text-primary-600 dark:text-primary-400">
+                        Redirecting...
+                    </div>
+                    <div class="text-xs font-semibold inline-block text-primary-600 dark:text-primary-400">
+                        <span id="countdown">5</span>s
+                    </div>
+                </div>
+                <div class="overflow-hidden h-2 text-xs flex rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div id="progress-bar" class="rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 w-0 transition-all duration-1000 ease-out"></div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400/80 mb-6">
+                You'll be redirected to <a href="https://arknogh.github.io" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors hover:underline">the main page</a> automatically.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="https://arknogh.github.io" class="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-medium rounded-lg hover:from-primary-700 hover:to-secondary-700 transition-all duration-300 shadow-md">
+                    <i class="fas fa-home mr-2"></i>
+                    Return Now
+                </a>
+                <a href="https://arknogh.github.io/contact/" class="inline-flex items-center justify-center px-6 py-2.5 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600 transition-all duration-300">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Send Another Message
+                </a>
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700/60">
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">What happens next?</h3>
+                <div class="flex items-start space-x-2 mb-2 text-left">
+                    <i class="fas fa-check-circle text-green-500 dark:text-green-400 mt-0.5 flex-shrink-0"></i>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">Ark will review your message within 24-48 hours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Create confetti
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#38acf8', '#0e93ea', '#7cc7fc', '#8b5cf6', '#a78bfa', '#c4b5fd'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animationDelay = `${Math.random() * 5}s`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                container.appendChild(confetti);
+            }
+        }
+        
+        // Countdown timer
+        let seconds = 5;
+        const countdownElement = document.getElementById('countdown');
+        const progressBar = document.getElementById('progress-bar');
+        if (countdownElement && progressBar) {
+            progressBar.style.width = '0%';
+            const interval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+                const progress = (5 - seconds) / 5 * 100;
+                progressBar.style.width = `${progress}%`;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+        
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('dark');
+            
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        }
+        
+        // Initialize theme based on saved preference or system preference
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('color-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        
+        // Set up theme toggle event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            createConfetti();
+            
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', toggleTheme);
+            }
+        });
+    </script>
+</body>
+</html>

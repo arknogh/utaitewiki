@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Counter - Utaite Wiki Tools</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+
+        html {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            scroll-behavior: smooth; /* For smooth scrolling with #links */
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .skeleton-line {
+            @apply bg-gray-200 dark:bg-slate-700 rounded;
+        }
+        
+        .noise-overlay {
+            background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22a%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.65%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23a)%22/%3E%3C/svg%3E');
+        }
+    </style>
+    </head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased">
+    <div class="noise-overlay fixed inset-0 opacity-[0.03] dark:opacity-[0.02] z-[-1]"></div>
+    
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-indigo-100 dark:border-slate-700/60 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <a href="/utaitewiki/" class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+                <span class="font-semibold text-xl text-gray-700 dark:text-gray-200">Utaite Wiki Tools</span>
+            </a>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="/utaitewiki/#" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="https://utaite.fandom.com" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                    <span>Wiki</span>
+                </a>
+                <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors text-sm font-medium inline-flex items-center space-x-1.5 shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span>Contact</span>
+                </a>
+                <button id="themeToggleBtn" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors" aria-label="Toggle theme">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="text-center pt-12 pb-8 sm:pt-16 sm:pb-12">
+        <h1 id="main-title" class="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">Utaite Wiki Fandom Utilities</h1>
+        <p id="main-description" class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto px-4">A collection of tools to help manage and improve the Utaite Wiki</p>
+        
+        <div class="mt-8 sm:mt-10 inline-flex flex-wrap justify-center gap-3 sm:gap-4">
+            <a href="/utaitewiki#template-counter-tool" class="px-6 py-3 bg-indigo-600 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 inline-flex items-center space-x-2 font-medium">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span>Browse Tools</span>
+            </a>
+            <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-6 py-3 bg-white text-indigo-700 border border-indigo-300 dark:bg-slate-700 dark:text-indigo-300 dark:border-indigo-500/70 dark:hover:bg-slate-600 rounded-lg hover:bg-indigo-50 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 inline-flex items-center space-x-2 font-medium">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Get Help</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section id="template-counter-tool" class="bg-white dark:bg-slate-800/60 shadow-xl rounded-xl p-6 sm:p-8 lg:p-10">
+            <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-10 text-indigo-700 dark:text-indigo-400">Template Counter</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div class="lg:col-span-2 space-y-6">
+                    <div>
+                        <label for="input" class="block text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">Paste Old Format Data:</label>
+                        <textarea id="input" placeholder="Paste {{Song covers}} block(s) here..." class="w-full h-96 p-3.5 text-sm font-mono bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-slate-100 dark:placeholder-slate-400 resize-y"></textarea>
+                    </div>
+                    <button onclick="analyze()" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900 transition-colors duration-150 shadow-md hover:shadow-lg font-semibold text-base flex items-center justify-center space-x-2.5">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Analyze Data</span>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-1 space-y-4">
+                    <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Analysis Results:</h3>
+                    <div id="stats" class="bg-slate-50 dark:bg-slate-700/70 shadow-md rounded-lg p-5 text-sm min-h-[200px]">
+                        <div id="stats-initial-message" class="text-slate-500 dark:text-slate-400 h-full flex flex-col items-center justify-center text-center">
+                            <i class="fa-solid fa-clipboard-list text-3xl mb-3 text-indigo-400"></i>
+                            <span>Statistics will appear here once data is analyzed.</span>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-16 sm:mt-20 py-10 text-center border-t border-slate-200 dark:border-slate-700/60">
+        <p class="text-sm text-slate-600 dark:text-slate-400">&copy; <span id="currentYear"></span> Utaite Wiki Tools.</p>
+    </footer>
+
+    <script>
+        function countEntries(text) {
+            const blocks = text.split('{{Song covers').filter(block => block.trim());
+            const stats = {
+                totalBlocks: blocks.length,
+                totalEntries: 0,
+                withYoutube: 0,
+                withNiconico: 0,
+                withBoth: 0,
+                withNeither: 0,
+                multiSingers: 0,
+                withCD: 0,
+                withTM: 0,
+                withLiveVer: 0,
+                uniqueSingers: new Set(),
+                singerPairs: new Set()
+            };
+
+            blocks.forEach(block => {
+                for (let i = 1; i <= 5; i++) {
+                    const singerMatch = block.match(new RegExp(`singer${i} = ([^\\n|]+)`));
+                    if (!singerMatch) continue;
+
+                    stats.totalEntries++;
+                    
+                    const hasYT = block.match(new RegExp(`yt${i} = ([^\\n|]+)`))?.[1]?.trim();
+                    const hasNND = block.match(new RegExp(`nnd${i} = ([^\\n|]+)`))?.[1]?.trim();
+                    
+                    if (hasYT) stats.withYoutube++;
+                    if (hasNND) stats.withNiconico++;
+                    if (hasYT && hasNND) stats.withBoth++;
+                    if (!hasYT && !hasNND) stats.withNeither++;
+
+                    if (block.match(new RegExp(`cd${i} = ([^\\n|]+)`))) stats.withCD++;
+                    if (block.match(new RegExp(`tm${i} = ([^\\n|]+)`))) stats.withTM++;
+
+                    let singer = singerMatch[1].trim();
+                    if (singer.toLowerCase().includes('live')) stats.withLiveVer++;
+
+                    if (singer.includes(' x ')) {
+                        stats.multiSingers++;
+                        const singers = singer.split(' x ').map(s => 
+                            s.replace(/\[\[|\]\]|<br>.*$/g, '').trim()
+                        );
+                        singers.forEach(s => stats.uniqueSingers.add(s));
+                        stats.singerPairs.add(singers.join(' x '));
+                    } else {
+                        const cleanSinger = singer.replace(/\[\[|\]\]|<br>.*$/g, '').trim();
+                        stats.uniqueSingers.add(cleanSinger);
+                    }
+                }
+            });
+            return stats;
+        }
+
+        function analyze() {
+            const input = document.getElementById('input');
+            const statsDiv = document.getElementById('stats');
+            const initialMessageDiv = document.getElementById('stats-initial-message');
+
+            if (initialMessageDiv) {
+                initialMessageDiv.remove(); // Remove initial message
+            }
+            statsDiv.innerHTML = ''; // Clear previous stats or loading indicator
+
+            try {
+                if (!input.value.trim()) {
+                     statsDiv.innerHTML = `
+                        <div class="text-slate-500 dark:text-slate-400 h-full flex flex-col items-center justify-center text-center p-4">
+                            <i class="fa-solid fa-keyboard text-3xl mb-3 text-orange-400"></i>
+                            <span>Please paste some data into the input field to analyze.</span>
+                        </div>`;
+                    return;
+                }
+                const stats = countEntries(input.value);
+                
+                const createStatItem = (title, value) => {
+                    return `
+                        <div class="flex justify-between items-center py-2.5 border-b border-slate-200 dark:border-slate-600/80 last:border-b-0">
+                            <span class="font-medium text-slate-600 dark:text-slate-300">${title}:</span>
+                            <span class="font-semibold text-indigo-600 dark:text-indigo-400">${value}</span>
+                        </div>
+                    `;
+                };
+
+                statsDiv.innerHTML += createStatItem("Total Template Blocks", stats.totalBlocks);
+                statsDiv.innerHTML += createStatItem("Total Entries", stats.totalEntries);
+                statsDiv.innerHTML += createStatItem("With YouTube", stats.withYoutube);
+                statsDiv.innerHTML += createStatItem("With Niconico", stats.withNiconico);
+                statsDiv.innerHTML += createStatItem("With Both Platforms", stats.withBoth);
+                statsDiv.innerHTML += createStatItem("No Platform Links", stats.withNeither);
+                statsDiv.innerHTML += createStatItem("Multi-Singer Entries", stats.multiSingers);
+                statsDiv.innerHTML += createStatItem("CD Entries", stats.withCD);
+                statsDiv.innerHTML += createStatItem("TM Entries", stats.withTM);
+                statsDiv.innerHTML += createStatItem("Live Versions", stats.withLiveVer);
+                statsDiv.innerHTML += createStatItem("Unique Singers", stats.uniqueSingers.size);
+                statsDiv.innerHTML += createStatItem("Unique Singer Pairs", stats.singerPairs.size);
+
+                if (stats.totalBlocks === 0 && stats.totalEntries === 0) {
+                     statsDiv.innerHTML = `
+                        <div class="text-slate-500 dark:text-slate-400 h-full flex flex-col items-center justify-center text-center p-4">
+                            <i class="fa-solid fa-ghost text-3xl mb-3 text-sky-400"></i>
+                            <span>No '{{Song covers}}' templates found in the provided data.</span>
+                        </div>`;
+                }
+
+            } catch (error) {
+                console.error("Analysis error:", error);
+                statsDiv.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-center p-4 text-red-500 dark:text-red-400">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i>
+                        <strong>Error:</strong> ${error.message}
+                        <p class="text-xs mt-2 text-slate-500 dark:text-slate-400">Check console for more details.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Theme toggle script
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const htmlElement = document.documentElement;
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+                if(sunIcon) sunIcon.classList.add('hidden');
+                if(moonIcon) moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                if(sunIcon) sunIcon.classList.remove('hidden');
+                if(moonIcon) moonIcon.classList.add('hidden');
+            }
+        };
+
+        // Check for saved theme in localStorage or use system preference
+        const storedTheme = localStorage.getItem('theme');
+        const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const currentTheme = storedTheme || preferredTheme;
+        applyTheme(currentTheme);
+
+        if(themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const newTheme = htmlElement.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+        }
+
+        // Set current year in footer
+        const currentYearSpan = document.getElementById('currentYear');
+        if (currentYearSpan) {
+            currentYearSpan.textContent = new Date().getFullYear();
+        }
+    </script>
+</body>
+</html>

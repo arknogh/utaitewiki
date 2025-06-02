@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en" class=""> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaWiki Utaite Page Builder</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+    @custom-variant dark (&:where(.dark, .dark *));
+
+        @theme {
+            --color-primary-light: #3b82f6;
+            --color-primary: #2563eb; /* DEFAULT */
+            --color-primary-dark: #1d4ed8;
+
+            --color-secondary-light: #f3f4f6;
+            --color-secondary: #e5e7eb; /* DEFAULT */
+            --color-secondary-dark: #d1d5db;
+
+            --color-accent-light: #ec4899;
+            --color-accent: #db2777; /* DEFAULT */
+            --color-accent-dark: #be185d;
+
+            --color-bglight: #f9fafb;
+            --color-bgdark: #111827;
+            --color-textlight: #1f2937;
+            --color-textdark: #f3f4f6;
+            --color-borderlight: #d1d5db;
+            --color-borderdark: #374151;
+            --color-inputlight: #ffffff;
+            --color-inputdark: #1f2937;
+        }
+
+        /* Form element styling using @apply */
+        label {
+            @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+        }
+        input[type="text"], input[type="date"], select, textarea {
+            /* shadow-sm (v3) -> shadow-xs (v4) */
+            /* rounded-md is fine */
+            @apply w-full p-2.5 border border-borderlight dark:border-borderdark rounded-md shadow-xs bg-inputlight dark:bg-inputdark
+                   text-textlight dark:text-textdark placeholder-gray-400 dark:placeholder-gray-500
+                   focus:ring-2 focus:ring-primary focus:border-primary dark:focus:ring-primary-light dark:focus:border-primary-light text-sm;
+        }
+        textarea {
+            @apply min-h-[80px] resize-y;
+        }
+        select {
+            @apply pr-8; /* Add padding for arrow */
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+             /* rounded (v3) -> rounded-sm (v4) */
+             /* focus:ring-primary-light will default to 1px ring width in v4. If 3px was intended (v3 default), use focus:ring-3 */
+            @apply h-4 w-4 text-primary border-gray-300 dark:border-gray-600 rounded-sm focus:ring-primary-light dark:focus:ring-offset-bgdark;
+        }
+
+        /* Tab styling */
+        .tab-link {
+            @apply px-3 py-2 sm:px-4 sm:py-2.5 font-medium text-sm sm:text-base text-gray-500 dark:text-gray-400
+                   border-b-2 border-transparent hover:text-primary dark:hover:text-primary-light hover:border-primary-light dark:hover:border-primary-light
+                   whitespace-nowrap cursor-pointer transition-colors duration-150;
+        }
+        .tab-link.active {
+            @apply text-primary dark:text-primary-light border-primary dark:border-primary-light font-semibold;
+        }
+        .tab-section-header {
+            @apply text-xl font-semibold mt-3 mb-4 pb-2 border-b border-borderlight dark:border-borderdark text-gray-800 dark:text-gray-200;
+        }
+        .input-info-text {
+            @apply text-xs text-gray-500 dark:text-gray-400;
+        }
+
+        /* Button styling */
+        .btn {
+            /* rounded-md and shadow-md are fine */
+            /* focus:outline-none (v3) -> focus:outline-hidden (v4) */
+            /* focus:ring-2 specifies width, so it's fine */
+            @apply px-6 py-2.5 rounded-md font-semibold text-sm shadow-md
+                   focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-bgdark
+                   transition-all duration-150 ease-in-out;
+        }
+        .btn-primary {
+            @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+        }
+        .btn-secondary {
+            @apply bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 dark:bg-gray-500 dark:hover:bg-gray-400;
+        }
+        .form-group {
+            @apply mb-0;
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .skeleton-line {
+            @apply bg-gray-200 dark:bg-slate-700 rounded;
+        }
+        
+        .noise-overlay {
+            background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22a%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.65%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23a)%22/%3E%3C/svg%3E');
+        }
+
+        /* Tailwind v4 Preflight Overrides & Other global styles */
+        @layer base {
+          button:not(:disabled),
+          [role="button"]:not(:disabled) {
+            cursor: pointer;
+          }
+        }
+    </style>
+    <style>
+        /* Custom scrollbar for webkit browsers - This is standard CSS, keep separate */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #9ca3af; /* Gray 400 */
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #4b5563; /* Gray 600 */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280; /* Gray 500 */
+        }
+       .dark ::-webkit-scrollbar-thumb:hover {
+            background-color: #374151; /* Gray 700 */
+        }
+
+        /* Basic transition for theme change - This is standard CSS, keep separate */
+        body, .container, input, select, textarea, button, .tab-link, .tab-content {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 min-h-screen text-gray-800 dark:text-gray-200 antialiased transition-colors duration-300">
+    <div class="noise-overlay fixed inset-0 opacity-[0.03] dark:opacity-[0.02] z-[-1]"></div>
+    
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-indigo-100 dark:border-slate-700/60 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <a href="/utaitewiki" class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+                <span class="font-semibold text-xl text-gray-700 dark:text-gray-200">Utaite Wiki Tools</span>
+            </a>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="/utaitewiki#" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="https://utaite.fandom.com" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                    <span>Wiki</span>
+                </a>
+                <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors text-sm font-medium inline-flex items-center space-x-1.5 shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span>Contact</span>
+                </a>
+                <button id="themeToggleBtn" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors" aria-label="Toggle theme">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="text-center mt-16 mb-16">
+        <h1 id="main-title" class="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">Utaite Wiki Fandom Utilities</h1>
+        <p id="main-description" class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">A collection of tools to help manage and improve the Utaite Wiki</p>
+        
+        <div class="mt-10 inline-flex flex-wrap justify-center gap-3 sm:gap-4">
+            <a href="/utaitewiki#tools-section" class="px-6 py-3 bg-indigo-600 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 inline-flex items-center space-x-2 font-medium">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span>Browse Tools</span>
+            </a>
+            <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-6 py-3 bg-white text-indigo-700 border border-indigo-300 dark:bg-slate-700 dark:text-indigo-300 dark:border-indigo-500/70 dark:hover:bg-slate-600 rounded-lg hover:bg-indigo-50 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 inline-flex items-center space-x-2 font-medium">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Get Help</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="container mx-auto max-w-4xl my-8 p-6 sm:p-8 bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
+        <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-center text-primary dark:text-primary-light">MediaWiki Utaite Page Builder</h1>
+
+        <div class="mb-6 border-b border-borderlight dark:border-borderdark">
+            <nav class="flex -mb-px overflow-x-auto pb-1 space-x-1 sm:space-x-2" aria-label="Tabs">
+                <button class="tab-link active" data-tab="tab-start">Start Here</button>
+                <button class="tab-link" data-tab="tab-profile">Profile</button>
+                <button class="tab-link" data-tab="tab-social-jp">Social (Part 1)</button>
+                <button class="tab-link" data-tab="tab-social-global">Social (Part 2)</button>
+                <button class="tab-link" data-tab="tab-content-core">Content: Core</button>
+                <button class="tab-link" data-tab="tab-content-extended">Content: Extended</button>
+            </nav>
+        </div>
+
+        <form id="utaiteForm" class="space-y-6">
+            <div id="tab-start" class="tab-content space-y-6">
+                <div>
+                    <h2 class="tab-section-header">Housekeeping Templates</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="uptodate">Uptodate (e.g., Month XX, 20XX)</label>
+                            <input type="text" id="uptodate" name="uptodate" placeholder="Month DD, YY">
+                        </div>
+                        <div class="form-group">
+                            <label for="statusTemplate">Status Template</label>
+                            <select id="statusTemplate" name="statusTemplate">
+                                <option value="">-- Select Status --</option>
+                                <option value="{{empty}}">{{empty}}</option>
+                                <option value="{{WIP}}">{{WIP}}</option>
+                                <option value="{{WIP|songlist}}">{{WIP|songlist}}</option>
+                                <option value="{{WIP|description}}">{{WIP|description}}</option>
+                                <option value="{{complete}}">{{complete}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Basic Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">-- Select --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Androgynous">Androgynous</option>
+                                <option value="N/A">N/A</option>
+                                <option value="Other">Other (Specify Below)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="">-- Select --</option>
+                                <option value="{{Active}}">Active</option>
+                                <option value="{{Inactive}}">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="years">Years Active</label>
+                            <input type="text" id="years" name="years" placeholder="e.g., 20XX-present">
+                        </div>
+                        <div class="form-group">
+                            <label for="fanmark">Fanmark</label>
+                            <input type="text" id="fanmark" name="fanmark" placeholder="e.g., 🎤✨">
+                        </div>
+                        <div class="form-group md:col-span-2">
+                            <label for="fanname">Fan Name</label>
+                            <input type="text" id="fanname" name="fanname" placeholder="e.g., Star Crew">
+                        </div>
+                        <div class="form-group md:col-span-2">
+                            <label for="affiliation">Affiliation</label>
+                            <input type="text" id="affiliation" name="affiliation" placeholder="Use [[Link]] for wiki links">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-profile" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="tab-section-header">Name Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="officialjapname">Official Japanese Name</label>
+                            <input type="text" id="officialjapname" name="officialjapname" placeholder="Kanji/Kana">
+                        </div>
+                        <div class="form-group">
+                            <label for="officialromajiname">Official Romaji Name</label>
+                            <input type="text" id="officialromajiname" name="officialromajiname" placeholder="Romaji">
+                        </div>
+                        <div class="form-group">
+                            <label for="officialengname">Official English Name (Optional)</label>
+                            <input type="text" id="officialengname" name="officialengname">
+                        </div>
+                        <div class="form-group">
+                            <label for="officialnameinfo">Official Name Info (Optional)</label>
+                            <input type="text" id="officialnameinfo" name="officialnameinfo">
+                        </div>
+                    </div>
+                    <div class="form-group mt-6">
+                        <label for="aka">Also Known As</label>
+                        <textarea id="aka" name="aka" placeholder="Name 1 (Nickname)&#10;Name 2 (Alt Writing) - Use <br/> for new lines"></textarea>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Visual/Image</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="image">Image Filename</label>
+                            <input type="text" id="image" name="image" placeholder="e.g., Artist-Image.png">
+                        </div>
+                        <div class="form-group">
+                            <label for="imagesong">Image Song</label>
+                            <input type="text" id="imagesong" name="imagesong">
+                        </div>
+                        <div class="form-group">
+                            <label for="songfeat">Song Feat (e.g., cover)</label>
+                            <input type="text" id="songfeat" name="songfeat">
+                        </div>
+                        <div class="form-group">
+                            <label for="imagegroup">Image Group (e.g., Album)</label>
+                            <input type="text" id="imagegroup" name="imagegroup">
+                        </div>
+                        <div class="form-group">
+                            <label for="imagedescr">Image Description</label>
+                            <input type="text" id="imagedescr" name="imagedescr">
+                            <small>use this field if you ever confused with these four parameters!</small>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label for="officialillustrator">Official Illustrator</label>
+                            <input type="text" id="officialillustrator" name="officialillustrator" placeholder="Use [url Name] for links">
+                        </div>
+                        <div class="form-group">
+                            <label for="otherillustrator">Other Illustrator(s)</label>
+                            <input type="text" id="otherillustrator" name="otherillustrator" placeholder="Use [url Name] for links">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Personal Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="form-group">
+                            <label for="birthday">Birthday (DD)</label>
+                            <input type="text" id="birthday" name="birthday" placeholder="DD">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthmonth">Birth Month (MM)</label>
+                            <input type="text" id="birthmonth" name="birthmonth" placeholder="MM">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthyear">Birth Year (YYYY)</label>
+                            <input type="text" id="birthyear" name="birthyear" placeholder="YYYY">
+                        </div>
+                    </div>
+                    <div class="form-group mt-6">
+                        <label for="birthref">Birth Reference</label>
+                        <input type="text" id="birthref" name="birthref" placeholder="e.g., <ref>source</ref>">
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-social-jp" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="tab-section-header">Twitter</h2>
+                    <p class="input-info-text">Enter the username/handle only.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Twitter">Twitter 1</label><input type="text" id="Twitter" name="Twitter"><input type="text" id="Twitterinfo" name="Twitterinfo" placeholder="Info (default: main)" value="main" class="mt-1"></div>
+                        <div class="form-group"><label for="Twitter2">Twitter 2</label><input type="text" id="Twitter2" name="Twitter2"><input type="text" id="Twitter2info" name="Twitter2info" placeholder="Info (default: sub)" value="sub" class="mt-1"></div>
+                        <div class="form-group md:col-span-2"><label for="Twitter3">Twitter 3</label><input type="text" id="Twitter3" name="Twitter3"><input type="text" id="Twitter3info" name="Twitter3info" placeholder="Info (e.g. secret base)" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">TwitCasting</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Twitcast">Twitcast 1</label><input type="text" id="Twitcast" name="Twitcast"><input type="text" id="Twitcastinfo" name="Twitcastinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Twitcast2">Twitcast 2</label><input type="text" id="Twitcast2" name="Twitcast2"><input type="text" id="Twitcast2info" name="Twitcast2info" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">NicoNico Douga</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="NNDuserpage">NND User Page ID 1</label><input type="text" id="NNDuserpage" name="NNDuserpage"><input type="text" id="NNDuserpageinfo" name="NNDuserpageinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="NNDuserpage2">NND User Page ID 2</label><input type="text" id="NNDuserpage2" name="NNDuserpage2"><input type="text" id="NNDuserpage2info" name="NNDuserpage2info" placeholder="Info" class="mt-1"></div>
+                    </div>
+                    <h3 class="text-lg font-semibold mt-6 mb-2 text-textlight dark:text-textdark">Mylists</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="mylist1">Mylist 1 ID</label><input type="text" id="mylist1" name="mylist1"><input type="text" id="mylist1info" name="mylist1info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="mylist2">Mylist 2 ID</label><input type="text" id="mylist2" name="mylist2"><input type="text" id="mylist2info" name="mylist2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="mylist3">Mylist 3 ID</label><input type="text" id="mylist3" name="mylist3"><input type="text" id="mylist3info" name="mylist3info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="mylist4">Mylist 4 ID</label><input type="text" id="mylist4" name="mylist4"><input type="text" id="mylist4info" name="mylist4info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group md:col-span-2"><label for="mylist5">Mylist 5 ID</label><input type="text" id="mylist5" name="mylist5"><input type="text" id="mylist5info" name="mylist5info" placeholder="Info" class="mt-1"></div>
+                    </div>
+                    <h3 class="text-lg font-semibold mt-6 mb-2 text-textlight dark:text-textdark">NicoNico Community / Channel</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="nicommu1">Community 1 ID</label><input type="text" id="nicommu1" name="nicommu1"><input type="text" id="nicommu1info" name="nicommu1info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="nicommu2">Community 2 ID</label><input type="text" id="nicommu2" name="nicommu2"><input type="text" id="nicommu2info" name="nicommu2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group md:col-span-2"><label for="NNDchannel1">NND Channel 1</label><input type="text" id="NNDchannel1" name="NNDchannel1"><input type="text" id="NNDchannel1info" name="NNDchannel1info" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                 <div>
+                    <h2 class="tab-section-header">LINE</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Line">Line 1</label><input type="text" id="Line" name="Line"><input type="text" id="Lineinfo" name="Lineinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Line2">Line 2</label><input type="text" id="Line2" name="Line2"><input type="text" id="Line2info" name="Line2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="LinePage">Line Page</label><input type="text" id="LinePage" name="LinePage"><input type="text" id="LinePageinfo" name="LinePageinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Lineqrpage">Line QR Page</label><input type="text" id="Lineqrpage" name="Lineqrpage"><input type="text" id="Lineqrpageinfo" name="Lineqrpageinfo" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Marshmallow</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                         <div class="form-group"><label for="Marshmallow">Marshmallow ID</label><input type="text" id="Marshmallow" name="Marshmallow"><input type="text" id="Marshmallowinfo" name="Marshmallowinfo" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-social-global" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="tab-section-header">YouTube</h2>
+                    <p class="input-info-text">Enter handle without "@". Channel ID is preferred over legacy username.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="YThandle">YT Handle 1</label><input type="text" id="YThandle" name="YThandle"><input type="text" id="YTHinfo" name="YTHinfo" placeholder="Info Chan 1" class="mt-1"><label class="inline-flex items-center mt-2 text-sm"><select id="YThandledeleted" name="YThandledeleted" class="ml-2 text-sm p-1"><option value="">No</option><option value="true">Yes</option></select><span class="ml-1 text-gray-600 dark:text-gray-400">Deleted?</span></label></div>
+                        <div class="form-group"><label for="YThandle2">YT Handle 2</label><input type="text" id="YThandle2" name="YThandle2"><input type="text" id="YTH2info" name="YTH2info" placeholder="Info Chan 2" class="mt-1"><label class="inline-flex items-center mt-2 text-sm"><select id="YThandle2deleted" name="YThandle2deleted" class="ml-2 text-sm p-1"><option value="">No</option><option value="true">Yes</option></select><span class="ml-1 text-gray-600 dark:text-gray-400">Deleted?</span></label></div>
+                        <div class="form-group"><label for="YTchannel">YT Channel ID 1</label><input type="text" id="YTchannel" name="YTchannel"><input type="text" id="YTchannelinfo" name="YTchannelinfo" placeholder="Info Chan 1" class="mt-1"><label class="inline-flex items-center mt-2 text-sm"><select id="YTchanneldeleted" name="YTchanneldeleted" class="ml-2 text-sm p-1"><option value="">No</option><option value="true">Yes</option></select><span class="ml-1 text-gray-600 dark:text-gray-400">Deleted?</span></label></div>
+                        <div class="form-group"><label for="YTchannel2">YT Channel ID 2</label><input type="text" id="YTchannel2" name="YTchannel2"><input type="text" id="YTchannel2info" name="YTchannel2info" placeholder="Info Chan 2" class="mt-1"><label class="inline-flex items-center mt-2 text-sm"><select id="YTchannel2deleted" name="YTchannel2deleted" class="ml-2 text-sm p-1"><option value="">No</option><option value="true">Yes</option></select><span class="ml-1 text-gray-600 dark:text-gray-400">Deleted?</span></label></div>
+                    </div>
+                    <div class="form-group mt-4">
+                        <label for="includeYTUsernameSection" class="flex items-center">
+                            <input type="checkbox" id="includeYTUsernameSection" name="includeYTUsernameSection" class="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 focus:ring-primary-light dark:focus:ring-offset-bgdark">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Include YT Username Section (Legacy)</span>
+                        </label>
+                    </div>
+                    <div id="ytUsernameSection" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 hidden mt-2">
+                        <div class="form-group"><label for="YTusername">YT Username 1</label><input type="text" id="YTusername" name="YTusername"><input type="text" id="YTinfo" name="YTinfo" placeholder="Info User 1" class="mt-1"><label class="inline-flex items-center mt-2 text-sm"><select id="YTusernamedeleted" name="YTusernamedeleted" class="ml-2 text-sm p-1"><option value="">No</option><option value="true">Yes</option></select><span class="ml-1 text-gray-600 dark:text-gray-400">Deleted?</span></label></div>
+                        <div class="form-group"><label for="YTusername2">YT Username 2</label><input type="text" id="YTusername2" name="YTusername2"><input type="text" id="YT2info" name="YT2info" placeholder="Info User 2" class="mt-1"><label class="inline-flex items-center mt-2 text-sm"><select id="YTusername2deleted" name="YTusername2deleted" class="ml-2 text-sm p-1"><option value="">No</option><option value="true">Yes</option></select><span class="ml-1 text-gray-600 dark:text-gray-400">Deleted?</span></label></div>
+                    </div>
+                </div>
+                 <div>
+                    <h2 class="tab-section-header">Spotify</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Spotify">Spotify Artist ID</label><input type="text" id="Spotify" name="Spotify"><input type="text" id="Spotifyinfo" name="Spotifyinfo" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Instagram & Threads</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Instagram">Instagram 1</label><input type="text" id="Instagram" name="Instagram"><input type="text" id="Instagraminfo" name="Instagraminfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Instagram2">Instagram 2</label><input type="text" id="Instagram2" name="Instagram2"><input type="text" id="Instagram2info" name="Instagram2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group md:col-span-2"><label for="Threads">Threads</label><input type="text" id="Threads" name="Threads"><input type="text" id="Threadsinfo" name="Threadsinfo" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">SoundCloud & BOOTH</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Soundcloud">Soundcloud 1</label><input type="text" id="Soundcloud" name="Soundcloud"><input type="text" id="Soundcloudinfo" name="Soundcloudinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Soundcloud2">Soundcloud 2</label><input type="text" id="Soundcloud2" name="Soundcloud2"><input type="text" id="Soundcloud2info" name="Soundcloud2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group md:col-span-2"><label for="Booth">Booth ID/Link</label><input type="text" id="Booth" name="Booth"><input type="text" id="Boothinfo" name="Boothinfo" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Other Social Platforms</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div class="form-group"><label for="Tiktok">TikTok 1</label><input type="text" id="Tiktok" name="Tiktok"><input type="text" id="Tiktokinfo" name="Tiktokinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Tiktok2">TikTok 2</label><input type="text" id="Tiktok2" name="Tiktok2"><input type="text" id="Tiktok2info" name="Tiktok2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="BBuserspace">Bilibili Userspace 1</label><input type="text" id="BBuserspace" name="BBuserspace"><input type="text" id="BBuserspaceinfo" name="BBuserspaceinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="BBuserspace2">Bilibili Userspace 2</label><input type="text" id="BBuserspace2" name="BBuserspace2"><input type="text" id="BBuserspace2info" name="BBuserspace2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Weibo">Weibo 1</label><input type="text" id="Weibo" name="Weibo"><input type="text" id="Weiboinfo" name="Weiboinfo" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group"><label for="Weibo2">Weibo 2</label><input type="text" id="Weibo2" name="Weibo2"><input type="text" id="Weibo2info" name="Weibo2info" placeholder="Info" class="mt-1"></div>
+                        <div class="form-group md:col-span-2"><label for="Bluesky">Bluesky</label><input type="text" id="Bluesky" name="Bluesky"><input type="text" id="Blueskyinfo" name="Blueskyinfo" placeholder="Info" class="mt-1"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Website & Other SNS (Manual Links)</h2>
+                    <p class="input-info-text">Use MediaWiki syntax for custom icons/links, e.g., [[File:Icon.png|20px|link=https://example.com]] External link text.</p>
+                    <div class="space-y-4">
+                        <div class="form-group"><label for="othersns">Other SNS 1</label><input type="text" id="othersns" name="othersns"></div>
+                        <div class="form-group"><label for="othersns2">Other SNS 2</label><input type="text" id="othersns2" name="othersns2"></div>
+                        <div class="form-group"><label for="othersns3">Other SNS 3</label><input type="text" id="othersns3" name="othersns3"></div>
+                        <div class="form-group"><label for="othersns4">Other SNS 4</label><input type="text" id="othersns4" name="othersns4"></div>
+                        <div class="form-group"><label for="othersns5">Other SNS 5</label><input type="text" id="othersns5" name="othersns5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-core" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="tab-section-header">Embedded Video (Representative)</h2>
+                    <div class="form-group">
+                        <label class="block mb-2">Platform</label>
+                        <div class="flex items-center space-x-4 sm:space-x-6">
+                            <label for="videoPlatformYoutube" class="flex items-center cursor-pointer">
+                                <input type="radio" id="videoPlatformYoutube" name="videoPlatform" value="youtube" checked class="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 focus:ring-primary-light dark:focus:ring-offset-bgdark">
+                                <span class="ml-2 text-sm">YouTube</span>
+                            </label>
+                            <label for="videoPlatformNico" class="flex items-center cursor-pointer">
+                                <input type="radio" id="videoPlatformNico" name="videoPlatform" value="nico" class="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 focus:ring-primary-light dark:focus:ring-offset-bgdark">
+                                <span class="ml-2 text-sm">NicoNico</span>
+                            </label>
+                            <label for="videoPlatformBoth" class="flex items-center cursor-pointer">
+                                <input type="radio" id="videoPlatformBoth" name="videoPlatform" value="both" class="h-4 w-4 text-primary border-gray-300 dark:border-gray-600 focus:ring-primary-light dark:focus:ring-offset-bgdark">
+                                <span class="ml-2 text-sm">Both</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="youtubeVideoFields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="form-group"><label for="youtubeVideoId">YouTube Video ID</label><input type="text" id="youtubeVideoId" name="youtubeVideoId"></div>
+                        <div class="form-group"><label for="youtubeVideoDesc">YouTube Video Description</label><input type="text" id="youtubeVideoDesc" name="youtubeVideoDesc" placeholder="Utaite's Cover of Song (Producer)"></div>
+                    </div>
+                    <div id="nicoVideoFields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 hidden">
+                        <div class="form-group"><label for="nicoVideoId">NicoNico Video ID</label><input type="text" id="nicoVideoId" name="nicoVideoId" placeholder="smXXXXXXXX"></div>
+                        <div class="form-group"><label for="nicoVideoDesc">NicoNico Video Description</label><input type="text" id="nicoVideoDesc" name="nicoVideoDesc" placeholder="Utaite's Cover of Song (Producer)"></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">Main Page Content Sections</h2>
+                    <div class="form-group">
+                        <label for="introDescription">Introductory Description</label>
+                        <textarea id="introDescription" name="introDescription" placeholder="Appears after 'Romaji (Kanji) is an Utaite.' e.g., ...with a smooth, cute voice..."></textarea>
+                        <p class="input-info-text mt-1">This text will follow the standard opening sentence.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="affiliationsContent">Affiliations & Collaboration Projects</label>
+                        <textarea id="affiliationsContent" name="affiliationsContent" placeholder="# ''{{CD|Album Name}}'' (Released Month DD, YY)&#10;# [[Project Name]] with [[Collaborator]]"></textarea>
+                        <p class="input-info-text mt-1">One item per line, starting with # or *.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-extended" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="tab-section-header">Additional Information (Infobox)</h2>
+                    <div class="form-group">
+                        <label for="partner">Partners</label>
+                        <textarea id="partner" name="partner" placeholder="[[Partner 1]], [[Partner 2]] (use [[Link]], comma separated)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="otheractivity">Other Activities</label>
+                        <textarea id="otheractivity" name="otheractivity" placeholder="[[Activity 1]], [[Activity 2]] (use [[Link]], comma separated)"></textarea>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tab-section-header">More Page Content Sections</h2>
+                    <div class="form-group">
+                        <label for="songlistContent">List of Covered/Original Songs</label>
+                        <!-- <textarea id="songlistContent" name="songlistContent" placeholder="Song Title 1&#10;[[Song Title 2]] (Original by [[Producer]])"></textarea> -->
+                        <!-- <p class="input-info-text mt-1">One song title per line. Use [[Song Title]] for links.</p> -->
+                        <small class="text-slate-700 dark:text-slate-300">We&apos;re currently brewing up the Song Table Generator!</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="discographyContent">Discography</label>
+                        <textarea id="discographyContent" name="discographyContent" placeholder="e.g., {{AlbumType2|"></textarea>
+                        <p class="input-info-text mt-1">Use appropriate MediaWiki formatting.</p>
+                        You can build album template <a class="text-indigo-400 hover:text-indigo-300 hover:underline hover:decoration-indigo-400" target="_blank" href="https://arknogh.github.io/utaitewiki/adm.html">here</a> then paste the output to discography field above!
+                        
+                    </div>
+                    <div class="form-group">
+                        <label for="galleryContent">Gallery</label>
+                        <!-- <textarea id="galleryContent" name="galleryContent" placeholder="Image1.png|Caption for image 1&#10;Image2.jpg|Caption for image 2"></textarea> -->
+                        <!-- <p class="input-info-text mt-1">One image file name per line, e.g., Image.jpg|Caption.</p> -->
+                        <small class="text-slate-700 dark:text-slate-300">We&apos;re currently brewing up the Gallery Generator!</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="triviaContent">Trivia</label>
+                        <textarea id="triviaContent" name="triviaContent" placeholder="Fact 1.&#10;Fact 2 <ref>Source for fact 2</ref>"></textarea>
+                        <p class="input-info-text mt-1">One fact per line, no need asterisk symbol (*), we'll generate it for you~.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="externalLinksContent">External Links Section</label>
+                        <textarea id="externalLinksContent" name="externalLinksContent" placeholder="[https://twitter.com/username Twitter]&#10;[http://example.com Official Website]"></textarea>
+                        <p class="input-info-text mt-1">One link per line, format: [http://example.com Link Name].</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <button type="button" id="generateButton" class="btn btn-primary w-full sm:w-auto">Generate MediaWiki Code</button>
+                <button type="button" id="copyButton" class="btn btn-secondary w-full sm:w-auto">Copy to Clipboard</button>
+            </div>
+        </form>
+
+        <div id="outputContainer" class="hidden mt-10">
+            <h2 class="text-xl font-semibold mb-3 text-textlight dark:text-textdark">Generated MediaWiki Code:</h2>
+            <textarea id="mediawikiOutput" readonly class="w-full min-h-[300px] bg-gray-50 dark:bg-gray-900 border border-borderlight dark:border-borderdark rounded-lg p-4 font-mono text-sm whitespace-pre overflow-auto focus:ring-2 focus:ring-primary focus:border-primary dark:focus:ring-primary-light dark:focus:border-primary-light"></textarea>
+        </div>
+    </div>
+
+    <div id="toastNotification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 px-6 py-3 rounded-lg shadow-xl text-sm opacity-0 transition-opacity duration-300 z-[100]">
+        Copied to clipboard!
+    </div>
+
+    <script>
+        // --- Theme Toggle Logic ---
+        const themeToggle = document.getElementById('themeToggleBtn');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const htmlElement = document.documentElement;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (systemPrefersDark) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light'); // Default to light
+        }
+
+        // --- Tab switching logic ---
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const targetTab = link.dataset.tab;
+
+                tabLinks.forEach(l => l.classList.remove('active'));
+                tabContents.forEach(c => c.classList.add('hidden'));
+
+                link.classList.add('active');
+                const activeTabContent = document.getElementById(targetTab);
+                if (activeTabContent) {
+                    activeTabContent.classList.remove('hidden');
+                }
+            });
+        });
+
+        // --- Toggle YT Username section ---
+        const ytUsernameCheckbox = document.getElementById('includeYTUsernameSection');
+        const ytUsernameSectionDiv = document.getElementById('ytUsernameSection');
+        if (ytUsernameCheckbox && ytUsernameSectionDiv) {
+            ytUsernameCheckbox.addEventListener('change', function() {
+                ytUsernameSectionDiv.classList.toggle('hidden', !this.checked);
+            });
+        }
+
+        // --- Toggle video platform fields ---
+        const videoPlatformRadios = document.querySelectorAll('input[name="videoPlatform"]');
+        const youtubeVideoFieldsDiv = document.getElementById('youtubeVideoFields');
+        const nicoVideoFieldsDiv = document.getElementById('nicoVideoFields');
+
+        function updateVideoPlatformFields() {
+            const platform = document.querySelector('input[name="videoPlatform"]:checked')?.value;
+            if (!youtubeVideoFieldsDiv || !nicoVideoFieldsDiv) return;
+
+            youtubeVideoFieldsDiv.classList.toggle('hidden', platform === 'nico');
+            nicoVideoFieldsDiv.classList.toggle('hidden', platform === 'youtube');
+
+            if (platform === 'both') {
+                youtubeVideoFieldsDiv.classList.remove('hidden');
+                nicoVideoFieldsDiv.classList.remove('hidden');
+            }
+        }
+
+        videoPlatformRadios.forEach(radio => {
+            radio.addEventListener('change', updateVideoPlatformFields);
+        });
+        updateVideoPlatformFields();
+
+
+        // --- MediaWiki Generation Logic ---
+        document.getElementById('generateButton').addEventListener('click', function() {
+            const form = document.getElementById('utaiteForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            let output = "";
+
+            if (data.uptodate) output += `{{Uptodate|${data.uptodate}}}\n`;
+            if (data.statusTemplate) output += `${data.statusTemplate}\n`;
+            if (data.uptodate || data.statusTemplate) output += "\n";
+
+            output += "{{Utaite\n";
+            output += "|cat                      = Utaite\n"; // Default
+
+            function addOptionalField(key, formKey, isTextarea = false) {
+                let value = data[formKey]?.trim();
+                if (value) {
+                    if (isTextarea) {
+                        output += `|${key.padEnd(24, ' ')} = ${value}\n`;
+                    } else {
+                        output += `|${key.padEnd(24, ' ')} = ${value}\n`;
+                    }
+                }
+            }
+            
+            // Basic Information
+            addOptionalField('gender', 'gender');
+            addOptionalField('status', 'status');
+            addOptionalField('years', 'years');
+            addOptionalField('fanmark', 'fanmark');
+            addOptionalField('fanname', 'fanname');
+            addOptionalField('affiliation', 'affiliation');
+            output += "\n";
+
+            // Name Information
+            addOptionalField('officialjapname', 'officialjapname');
+            addOptionalField('officialromajiname', 'officialromajiname');
+            addOptionalField('officialengname', 'officialengname');
+            addOptionalField('officialnameinfo', 'officialnameinfo');
+            if (data.aka) output += `|${'aka'.padEnd(24, ' ')} = ${data.aka.trim().replace(/\r\n|\r|\n/g, '<br/>')}\n`;
+            output += "\n";
+
+            // Visual/Image
+            addOptionalField('image', 'image');
+            addOptionalField('imagesong', 'imagesong');
+            addOptionalField('songfeat', 'songfeat');
+            addOptionalField('imagegroup', 'imagegroup');
+            addOptionalField('imagedescr', 'imagedescr');
+            addOptionalField('officialillustrator', 'officialillustrator');
+            addOptionalField('otherillustrator', 'otherillustrator');
+            output += "\n";
+
+            // Personal Information
+            addOptionalField('birthday', 'birthday');
+            addOptionalField('birthmonth', 'birthmonth');
+            addOptionalField('birthyear', 'birthyear');
+            addOptionalField('birthref', 'birthref');
+            output += "\n";
+
+            // Social Media: Twitter & Twitcast
+            addOptionalField('Twitter', 'Twitter'); addOptionalField('Twitterinfo', 'Twitterinfo');
+            addOptionalField('Twitter2', 'Twitter2'); addOptionalField('Twitter2info', 'Twitter2info');
+            addOptionalField('Twitter3', 'Twitter3'); addOptionalField('Twitter3info', 'Twitter3info');
+            addOptionalField('Twitcast', 'Twitcast'); addOptionalField('Twitcastinfo', 'Twitcastinfo');
+            addOptionalField('Twitcast2', 'Twitcast2'); addOptionalField('Twitcast2info', 'Twitcast2info');
+            output += "\n";
+
+            // Social Media: YouTube
+            addOptionalField('YThandle', 'YThandle'); addOptionalField('YTHinfo', 'YTHinfo'); addOptionalField('YThandledeleted', 'YThandledeleted');
+            addOptionalField('YThandle2', 'YThandle2'); addOptionalField('YTH2info', 'YTH2info'); addOptionalField('YThandle2deleted', 'YThandle2deleted');
+            addOptionalField('YTchannel', 'YTchannel'); addOptionalField('YTchannelinfo', 'YTchannelinfo'); addOptionalField('YTchanneldeleted', 'YTchanneldeleted');
+            addOptionalField('YTchannel2', 'YTchannel2'); addOptionalField('YTchannel2info', 'YTchannel2info'); addOptionalField('YTchannel2deleted', 'YTchannel2deleted');
+            if (data.includeYTUsernameSection === 'on') {
+                addOptionalField('YTusername', 'YTusername'); addOptionalField('YTinfo', 'YTinfo'); addOptionalField('YTusernamedeleted', 'YTusernamedeleted');
+                addOptionalField('YTusername2', 'YTusername2'); addOptionalField('YT2info', 'YT2info'); addOptionalField('YTusername2deleted', 'YTusername2deleted');
+            }
+            output += "\n";
+
+            // Social Media: NicoNicoDouga
+            addOptionalField('NNDuserpage', 'NNDuserpage'); addOptionalField('NNDuserpageinfo', 'NNDuserpageinfo');
+            addOptionalField('NNDuserpage2', 'NNDuserpage2'); addOptionalField('NNDuserpage2info', 'NNDuserpage2info');
+            for (let i = 1; i <= 5; i++) { addOptionalField(`mylist${i}`, `mylist${i}`); addOptionalField(`mylist${i}info`, `mylist${i}info`); }
+            addOptionalField('nicommu1', 'nicommu1'); addOptionalField('nicommu1info', 'nicommu1info');
+            addOptionalField('nicommu2', 'nicommu2'); addOptionalField('nicommu2info', 'nicommu2info');
+            addOptionalField('NNDchannel1', 'NNDchannel1'); addOptionalField('NNDchannel1info', 'NNDchannel1info');
+            output += "\n";
+
+            // Social Media: Other Platforms
+            addOptionalField('Spotify', 'Spotify'); addOptionalField('Spotifyinfo', 'Spotifyinfo');
+            addOptionalField('Marshmallow', 'Marshmallow'); addOptionalField('Marshmallowinfo', 'Marshmallowinfo');
+            addOptionalField('Instagram', 'Instagram'); addOptionalField('Instagraminfo', 'Instagraminfo');
+            addOptionalField('Instagram2', 'Instagram2'); addOptionalField('Instagram2info', 'Instagram2info');
+            addOptionalField('Threads', 'Threads'); addOptionalField('Threadsinfo', 'Threadsinfo');
+            addOptionalField('Soundcloud', 'Soundcloud'); addOptionalField('Soundcloudinfo', 'Soundcloudinfo');
+            addOptionalField('Soundcloud2', 'Soundcloud2'); addOptionalField('Soundcloud2info', 'Soundcloud2info');
+            addOptionalField('Booth', 'Booth'); addOptionalField('Boothinfo', 'Boothinfo');
+            addOptionalField('Line', 'Line'); addOptionalField('Lineinfo', 'Lineinfo');
+            addOptionalField('Line2', 'Line2'); addOptionalField('Line2info', 'Line2info');
+            addOptionalField('LinePage', 'LinePage'); addOptionalField('LinePageinfo', 'LinePageinfo');
+            addOptionalField('Lineqrpage', 'Lineqrpage'); addOptionalField('Lineqrpageinfo', 'Lineqrpageinfo');
+            addOptionalField('Tiktok', 'Tiktok'); addOptionalField('Tiktokinfo', 'Tiktokinfo');
+            addOptionalField('Tiktok2', 'Tiktok2'); addOptionalField('Tiktok2info', 'Tiktok2info');
+            addOptionalField('BBuserspace', 'BBuserspace'); addOptionalField('BBuserspaceinfo', 'BBuserspaceinfo');
+            addOptionalField('BBuserspace2', 'BBuserspace2'); addOptionalField('BBuserspace2info', 'BBuserspace2info');
+            addOptionalField('Weibo', 'Weibo'); addOptionalField('Weiboinfo', 'Weiboinfo');
+            addOptionalField('Weibo2', 'Weibo2'); addOptionalField('Weibo2info', 'Weibo2info');
+            addOptionalField('Bluesky', 'Bluesky'); addOptionalField('Blueskyinfo', 'Blueskyinfo');
+            output += "\n";
+
+            // Manual SNS links
+            for (let i = 1; i <= 5; i++) { addOptionalField(`othersns${i || ''}`, `othersns${i || ''}`); }
+            output += "\n";
+            
+            // Additional Infobox Info
+            addOptionalField('partner', 'partner', true);
+            addOptionalField('otheractivity', 'otheractivity', true);
+            output += "}}\n\n"; // End Utaite template
+
+            // Embedded Video
+            const videoPlatform = data.videoPlatform;
+            const ytId = data.youtubeVideoId?.trim();
+            const ytDesc = data.youtubeVideoDesc?.trim() || `${data.officialromajiname || 'UtaiteName'}'s Cover of Song Name (Original Producer Name)`;
+            const nicoId = data.nicoVideoId?.trim();
+            const nicoDesc = data.nicoVideoDesc?.trim() || `${data.officialromajiname || 'UtaiteName'}'s Cover of Song Name (Original Producer Name)`;
+
+            if (videoPlatform === 'youtube' && ytId) {
+                output += `{{#ev:youtube|${ytId}|400|center|${ytDesc}}}<br/>\n`;
+            } else if (videoPlatform === 'nico' && nicoId) {
+                output += `{{#ev:nico|${nicoId}|400|center|${nicoDesc}}}<br/>\n`;
+            } else if (videoPlatform === 'both' && (ytId || nicoId)) {
+                output += `<div style="text-align:center;">`;
+                if (ytId) output += `{{#ev:youtube|${ytId}|300|inline|${ytDesc}}}`;
+                if (ytId && nicoId) output += `&nbsp;&nbsp;`;
+                if (nicoId) output += `{{#ev:nico|${nicoId}|300|inline|${nicoDesc}}}`;
+                output += `</div><br/>\n`;
+            }
+            if (ytId || nicoId) output += "\n";
+
+            // Intro Sentence
+            const romajiName = data.officialromajiname?.trim() || "RomajiName";
+            const kanjiName = data.officialjapname?.trim() || "JapaneseName";
+            output += `'''${romajiName}''' ('''${kanjiName}''') is an {{NNDict|Utaite}}.`;
+            if (data.introDescription?.trim()) {
+                output += ` ${data.introDescription.trim()}`;
+            }
+            output += "\n\n";
+
+            // Sections
+            function addSection(title, contentKey, defaultText = "", prefix = "", listWrapper = null) {
+                output += `==${title}==\n`;
+                const content = data[contentKey]?.trim();
+                if (content) {
+                    if (listWrapper === "Playlist") {
+                        output += `{{Playlist|content = \n`;
+                        content.split('\n').forEach(item => {
+                            if (item.trim()) output += `${prefix}${item.trim()}\n`;
+                        });
+                        output += `}}\n`;
+                    } else if (listWrapper === "Gallery") {
+                         output += `{{Gallery\n`;
+                        content.split('\n').forEach(item => {
+                            if (item.trim()) output += `|${item.trim()}\n`;
+                        });
+                        output += `}}\n`;
+                    } else {
+                         content.split('\n').forEach(item => {
+                            if (item.trim()) output += `${prefix}${item.trim()}\n`;
+                        });
+                    }
+                } else if (defaultText) {
+                    if (listWrapper === "Playlist") {
+                        output += `{{Playlist|content = \n${prefix}${defaultText}\n}}\n`;
+                    } else if (listWrapper === "Gallery") {
+                        output += `{{Gallery\n|${defaultText}\n}}\n`;
+                    } else {
+                        output += `${prefix}${defaultText}\n`;
+                    }
+                } else {
+                     output += "\n"; 
+                }
+                output += "\n";
+            }
+
+            addSection("Affiliations and Collaboration Projects", "affiliationsContent", "");
+            addSection("List of Covered Songs", "songlistContent", "# ", "", "Playlist");
+            addSection("Discography", "discographyContent", "");
+            addSection("Gallery", "galleryContent", "", "", "Gallery");
+            addSection("Trivia", "triviaContent", "* ", "* ");
+            addSection("External Links", "externalLinksContent", "* ", "* ");
+
+            output += "{{ref}}\n";
+            output += "";
+
+            document.getElementById('mediawikiOutput').value = output;
+            document.getElementById('outputContainer').classList.remove('hidden');
+            document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // --- Toast Notification Logic ---
+        const toastNotification = document.getElementById('toastNotification');
+        let toastTimeout;
+
+        function showToast(message = "Copied to clipboard!") {
+            if (!toastNotification) return;
+            toastNotification.textContent = message;
+            toastNotification.classList.remove('opacity-0');
+            toastNotification.classList.add('opacity-100');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastNotification.classList.remove('opacity-100');
+                toastNotification.classList.add('opacity-0');
+            }, 3000);
+        }
+        
+        // --- Copy to Clipboard Logic ---
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const outputTextarea = document.getElementById('mediawikiOutput');
+            if (!outputTextarea.value) {
+                showToast("Nothing to copy!");
+                return;
+            }
+            outputTextarea.select();
+            outputTextarea.setSelectionRange(0, 99999); 
+
+            try {
+                navigator.clipboard.writeText(outputTextarea.value).then(() => {
+                    showToast('Copied to clipboard!');
+                }).catch(err => {
+                    console.error('Async clipboard copy failed: ', err);
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            showToast('Copied to clipboard! (fallback)');
+                        } else {
+                            showToast('Copying failed. Please copy manually.');
+                            console.error('execCommand copy failed');
+                        }
+                    } catch (fallbackErr) {
+                        showToast('Copying failed. Please copy manually.');
+                        console.error('execCommand copy error: ', fallbackErr);
+                    }
+                });
+            } catch (err) {
+               try {
+                    const successful = document.execCommand('copy');
+                     if (successful) {
+                        showToast('Copied to clipboard! (fallback)');
+                    } else {
+                        showToast('Copying failed. Please copy manually.');
+                        console.error('execCommand copy failed (initial catch)');
+                    }
+                } catch (fallbackErr) {
+                    showToast('Copying failed. Please copy manually.');
+                    console.error('execCommand copy error (initial catch): ', fallbackErr);
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

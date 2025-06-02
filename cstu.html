@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+
+        html {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            scroll-behavior: smooth; /* For smooth scrolling with #links */
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .skeleton-line {
+            @apply bg-gray-200 dark:bg-slate-700 rounded;
+        }
+        
+        .noise-overlay {
+            background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22a%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.65%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23a)%22/%3E%3C/svg%3E');
+        }
+
+        /* Custom scrollbar styles */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        .dark ::-webkit-scrollbar-track { background: #1e293b; } /* dark:bg-slate-800 */
+        ::-webkit-scrollbar-track { background: #f1f5f9; } /* bg-slate-100 */
+        .dark ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; } /* dark:bg-slate-600 */
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; } /* bg-slate-400 */
+        .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; } /* dark:hover:bg-slate-500 */
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; } /* hover:bg-slate-500 */
+        
+        /* Toast animation */
+        @keyframes slideUp {
+            0% { transform: translateY(100%); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        .toast-animate { animation: slideUp 3s ease-in-out forwards; }
+        
+        /* Blinking cursor for empty fields */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink::after {
+            content: '|'; opacity: 1; animation: blink 1s infinite; margin-left: 2px;
+        }
+
+        @theme {
+            --color-primary-50: #f0f9ff;
+            --color-primary-100: #e0f2fe;
+            --color-primary-200: #bae6fd;
+            --color-primary-300: #7dd3fc;
+            --color-primary-400: #38bdf8;
+            --color-primary-500: #0ea5e9;
+            --color-primary-600: #0284c7;
+            --color-primary-700: #0369a1;
+            --color-primary-800: #075985;
+            --color-primary-900: #0c4a6e;
+            --color-primary-950: #082f49;
+
+            --color-secondary-50: #fff7ed;
+            --color-secondary-100: #ffedd5;
+            --color-secondary-200: #fed7aa;
+            --color-secondary-300: #fdba74;
+            --color-secondary-400: #fb923c;
+            --color-secondary-500: #f97316;
+            --color-secondary-600: #ea580c;
+            --color-secondary-700: #c2410c;
+            --color-secondary-800: #9a3412;
+            --color-secondary-900: #7c2d12;
+            --color-secondary-950: #431407;
+
+            --color-indigo-50: #eef2ff;
+            --color-indigo-100: #e0e7ff;
+            --color-indigo-200: #c7d2fe;
+            --color-indigo-300: #a5b4fc;
+            --color-indigo-400: #818cf8;
+            --color-indigo-500: #6366f1;
+            --color-indigo-600: #4f46e5;
+            --color-indigo-700: #4338ca;
+            --color-indigo-800: #3730a3;
+            --color-indigo-900: #312e81;
+            --color-indigo-950: #1e1b4b;
+
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 min-h-screen">
+    <div class="noise-overlay fixed inset-0 opacity-[0.03] dark:opacity-[0.02] z-[-1]"></div>
+    
+    <nav class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-indigo-100 dark:border-slate-700/60 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <a href="/utaitewiki" class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+                <span class="font-semibold text-xl text-gray-700 dark:text-gray-200">Utaite Wiki Tools</span>
+            </a>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="/utaitewiki#" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="https://utaite.fandom.com" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                    <span>Wiki</span>
+                </a>
+                <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors text-sm font-medium inline-flex items-center space-x-1.5 shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span>Contact</span>
+                </a>
+                <button id="themeToggleBtn" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors" aria-label="Toggle theme">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="text-center py-10 md:py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-3 bg-gradient-to-r from-primary-600 to-secondary-500 text-transparent bg-clip-text">Template Converter</h1>
+            <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Convert old format templates to the new format with table preview</p>
+        </div>
+    </header>
+
+    <div id="toast" class="fixed bottom-4 right-4 z-50 hidden">
+        <div class="bg-green-500 dark:bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span id="toastMessage">Operation successful</span>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 pb-16 max-w-6xl">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden lg:col-span-3">
+                <div class="p-5 bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-800 dark:to-primary-900">
+                    <h2 class="text-xl font-semibold text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        How to Use This Tool
+                    </h2>
+                </div>
+                
+                <div class="p-6 flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <h3 class="font-medium text-lg mb-3 text-primary-700 dark:text-primary-400">Basic Steps</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-slate-700 dark:text-slate-300">
+                            <li>Paste your old format template in the left box.</li>
+                            <li>Click "Convert Template".</li>
+                            <li>Review the parsed data in the table that appears.</li>
+                            <li>Copy the new format result from the right box.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h3 class="font-medium text-lg mb-3 text-primary-700 dark:text-primary-400">CD Field Handling</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700 dark:text-slate-300">
+                            <li>If content exists before # in CD field (e.g., <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">EXIT TUNES Albums#Ikemen Voice Paradise 7</code>), that value replaces the singer.</li>
+                            <li>If no content before # (e.g., <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">#Hakozume Clover</code>), original singer value is kept.</li>
+                            <li>Album name (after #) is always appended to the singer value (e.g. `singer=SingerName#AlbumName`).</li>
+                            <li>An `alias` field is generated (plain text) if an album is specified.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h3 class="font-medium text-lg mb-3 text-primary-700 dark:text-primary-400">Keyboard Shortcuts</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700 dark:text-slate-300">
+                            <li><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">Enter</kbd> Convert template</li>
+                            <li><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">Alt</kbd> + <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">C</kbd> Copy output</li>
+                            <li><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs">Esc</kbd> Clear fields</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden">
+                <div class="px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-700 dark:to-primary-800 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        Old Format Template
+                    </h2>
+                    <button id="clearInput" class="text-white/80 hover:text-white text-sm flex items-center transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        Clear
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <textarea id="input" placeholder="Paste old format here..." class="w-full h-80 p-4 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent text-sm font-mono bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 transition-colors resize-none"></textarea>
+                </div>
+                
+                <div class="px-4 pb-4">
+                    <button id="useExampleBtn" class="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded transition-colors flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                        Load Example Template
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden">
+                <div class="px-4 py-3 bg-gradient-to-r from-secondary-500 to-secondary-600 dark:from-secondary-700 dark:to-secondary-800 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        New Format Template
+                    </h2>
+                    
+                    <button id="copyBtn" class="text-white/80 hover:text-white text-sm flex items-center transition-colors" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        Copy
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <div class="relative">
+                        <textarea id="output" readonly placeholder="Converted template will appear here..." class="w-full h-80 p-4 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-sm font-mono text-slate-900 dark:text-slate-100 transition-colors resize-none"></textarea>
+                        
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg cursor-default">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            <p class="text-slate-500 dark:text-slate-400 font-medium text-center px-6">Your converted template will appear here</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="outputStats" class="hidden px-4 pb-4 text-xs text-slate-500 dark:text-slate-400">
+                    <div class="flex justify-between">
+                        <span>Entries found: <span id="entryCount" class="font-medium text-primary-600 dark:text-primary-400">0</span></span>
+                        <span>Conversion completed in <span id="conversionTime" class="font-medium text-primary-600 dark:text-primary-400">0ms</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center mb-8">
+            <button id="convertBtn" class="group relative px-8 py-4 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 flex items-center space-x-3">
+                <span>Convert Template</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            </button>
+        </div>
+        
+        <div id="errorMessage" class="hidden mb-8 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 p-4 rounded-lg flex items-start">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div id="errorMessageText"></div>
+        </div>
+
+        <div id="parsedTableContainer" class="hidden mt-8 mb-10 bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden">
+            <div class="px-4 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 dark:from-indigo-700 dark:to-indigo-800 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-white flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    Parsed Entries Preview
+                </h2>
+                <button id="toggleTableBtn" class="text-white/80 hover:text-white text-sm flex items-center transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <span id="toggleTableBtnText">Hide Table</span>
+                </button>
+            </div>
+            <div id="tableContent" class="p-4 overflow-x-auto">
+                <table id="parsedEntriesTable" class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-xs md:text-sm">
+                    <thead class="bg-slate-50 dark:bg-slate-700/50 sticky top-0">
+                        <tr>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">#</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">Original Singer</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">Original CD</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">NUTE Singer</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">NUTE Alias</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">NUTE Desc.</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">Custom?</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">YT</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">NND</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">BB</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-slate-700 dark:text-slate-200">Other Links (Raw)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                        </tbody>
+                </table>
+                <p id="tableEmptyMessage" class="text-center text-slate-500 dark:text-slate-400 py-6 hidden">No entries parsed to display in table.</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden">
+                <div class="px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-700 dark:to-primary-800">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+                        Old Format Structure
+                    </h2>
+                </div>
+                
+                <div class="p-4">
+                    <div class="bg-slate-100 dark:bg-slate-700 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+<pre>{{Song covers
+|singer1 = [[SingerName]] (optional description)
+|yt1 = YouTubeID
+|nnd1 = NicoNicoID
+|cd1 = AlbumType#AlbumName
+|sc1 = SoundCloudID
+|bb1 = BilibiliID
+|koe1 = KoebuID
+|tm1 = TmBoxID
+|box1 = BoxID
+
+|singer2 = ...
+}}</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden">
+                <div class="px-4 py-3 bg-gradient-to-r from-secondary-500 to-secondary-600 dark:from-secondary-700 dark:to-secondary-800">
+                    <h2 class="text-lg font-semibold text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+                        New Format Structure
+                    </h2>
+                </div>
+                
+                <div class="p-4">
+                    <div class="bg-slate-100 dark:bg-slate-700 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+<pre>{{NOUT
+|entries={{NUTE
+|singer=SingerName
+|alias=SingerAliasPlainText
+|description=Optional description
+|customlink=true (if singer is complex)
+|YT=YouTubeID
+|NND=NicoNicoID
+|BB=BilibiliID
+|image=imagename.png
+}}{{NUTE
+|singer=...
+}}
+}}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-16 text-center text-slate-500 dark:text-slate-400 text-sm border-t border-slate-200 dark:border-slate-700 pt-8">
+            <p>Template conversion tool for song cover entries</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize theme
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark' || 
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        
+        // Toggle theme
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            toast.querySelector('div').classList.remove('bg-green-500', 'dark:bg-green-600', 'bg-red-500', 'dark:bg-red-600');
+            if (type === 'error') {
+                toast.querySelector('div').classList.add('bg-red-500', 'dark:bg-red-600');
+            } else {
+                toast.querySelector('div').classList.add('bg-green-500', 'dark:bg-green-600');
+            }
+            
+            toast.classList.remove('hidden');
+            toast.querySelector('div').classList.add('toast-animate');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.querySelector('div').classList.remove('toast-animate');
+            }, 3000);
+        }
+        
+        function formatExternalLink(type, id) {
+            switch(type) {
+                case 'sc':
+                    return `[https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/${id} Soundcloud]`;
+                case 'bb': // BB handled separately by NUTE
+                    return ''; // No special formatting needed for description here
+                case 'koe':
+                    return `{{Koebu|${id}}}`;
+                case 'tm':
+                    return `[http://tmbox.net/pl/${id} TmBox]`;
+                case 'box':
+                    return `[https://www.box.com/s/${id} box]`;
+                default:
+                    return '';
+            }
+        }
+        
+        function parseOldFormat(text) {
+            const blocks = text.split('{{Song covers').filter(block => block.trim());
+            const entries = [];
+            
+            blocks.forEach(block => {
+                for (let i = 1; i <= 5; i++) { // Assuming max 5 entries per block, adjust if needed
+                    const entry = {
+                        originalLinksRaw: [] // To store raw other links for table
+                    };
+                    
+                    const singerLineRegex = new RegExp(`\\|singer${i} = .*?(?=\\n\\|[a-zA-Z]|\\n\\}\\}|$)`, 's');
+                    const singerLineMatch = block.match(singerLineRegex);
+                    
+                    if (!singerLineMatch) continue;
+
+                    let rawSingerLineContent = singerLineMatch[0].replace(new RegExp(`\\|singer${i} = `), '').trim();
+                    entry.originalSinger = rawSingerLineContent; // Store for table
+
+                    let currentSinger = rawSingerLineContent; 
+                    let currentDescription = '';
+
+                    // Handle <br> in singer field for description
+                    if (currentSinger.includes('<br>')) {
+                        const brParts = currentSinger.split('<br>');
+                        currentSinger = brParts[0].trim();
+                        currentDescription = brParts.slice(1).join('<br>').trim();
+                    }
+
+                    const outerParenMatch = currentSinger.match(/^(\[\[.*?\]\])\s*\(([^)]*)\)$/);
+                    if (outerParenMatch) {
+                        currentSinger = outerParenMatch[1]; 
+                        let parenDesc = outerParenMatch[2];
+                        currentDescription = (currentDescription + ' ' + parenDesc).trim();
+                    } 
+                    else if (!/^\[\[[^\]]*\([^\]]*\)[^\]]*\]\]$/.test(currentSinger) && // Avoid matching inside [[Page|Text (desc)]]
+                                currentSinger.includes('(') && currentSinger.endsWith(')')) {
+                        const openParenIndex = currentSinger.lastIndexOf('(');
+                        if (openParenIndex > 0) { 
+                            const baseSingerPart = currentSinger.substring(0, openParenIndex).trim();
+                            const parenContentPart = currentSinger.substring(openParenIndex + 1, currentSinger.length - 1).trim();
+                            
+                            if (!baseSingerPart.startsWith('[[') || baseSingerPart.endsWith(']]')) {
+                                currentSinger = baseSingerPart;
+                                currentDescription = (currentDescription + ' ' + parenContentPart).trim();
+                            }
+                        }
+                    }
+                    
+                    const originalRawSingerIsTemplate = rawSingerLineContent.includes('{{') && rawSingerLineContent.includes('}}');
+                    const originalRawSingerHasMultiple = rawSingerLineContent.includes(' x ');
+                 
+                    let singerFieldIsCustom = originalRawSingerIsTemplate || originalRawSingerHasMultiple;
+                 
+                    if (singerFieldIsCustom) {
+                        entry.customlink = 'true';
+                    }
+
+                    let finalSingerOutput = currentSinger; 
+
+                    const cdLineRegex = new RegExp(`\\|cd${i} = .*?(?=\\n\\|[a-zA-Z]|\\n\\}\\}|$)`, 's');
+                    const cdLineMatch = block.match(cdLineRegex);
+                    let cdContent = '';
+                    
+                    if (cdLineMatch) {
+                        cdContent = cdLineMatch[0].replace(new RegExp(`\\|cd${i} = `), '').trim();
+                        entry.originalCD = cdContent; // Store for table
+                    }
+
+                    if (cdContent) {
+                        const cdParts = cdContent.split('#');
+                        const cdPrefix = cdParts[0].trim();
+                        const albumName = cdParts.length > 1 ? cdParts[1].trim() : '';
+
+                        if (albumName) {
+                            let aliasBase = currentSinger; 
+                            entry.alias = aliasBase.replace(/\[\[(?:[^|\]]+\|)?([^\]]+)\]\]/g, '$1') 
+                                                   .replace(/\[\[|\]\]/g, ''); 
+                        }
+
+                        let baseSingerForAlbumDescription; 
+
+                        if (cdPrefix) {
+                            finalSingerOutput = cdPrefix; 
+                            baseSingerForAlbumDescription = cdPrefix;
+                            const cdPrefixIsTemplate = finalSingerOutput.includes('{{') && finalSingerOutput.includes('}}');
+                            const cdPrefixHasMultiple = finalSingerOutput.includes(' x ');
+                            
+                            if (cdPrefixIsTemplate || cdPrefixHasMultiple) {
+                                entry.customlink = 'true'; 
+                            } else {
+                                delete entry.customlink; 
+                                finalSingerOutput = finalSingerOutput.replace(/\[\[(?:[^|\]]+\|)?([^\]]+)\]\]/g, '$1').replace(/\[\[|\]\]/g, '');
+                                baseSingerForAlbumDescription = finalSingerOutput; 
+                            }
+                        } else {
+                            baseSingerForAlbumDescription = currentSinger; 
+                            if (!entry.customlink) { 
+                                finalSingerOutput = finalSingerOutput.replace(/\[\[(?:[^|\]]+\|)?([^\]]+)\]\]/g, '$1').replace(/\[\[|\]\]/g, '');
+                                baseSingerForAlbumDescription = finalSingerOutput;
+                            }
+                        }
+
+                        if (albumName) {
+                            finalSingerOutput = finalSingerOutput + '#' + albumName; 
+                            const albumInfoText = (baseSingerForAlbumDescription.replace(/\[\[|\]\]/g, '')) + " - " + albumName; 
+                            currentDescription = currentDescription ? currentDescription + " (" + albumInfoText + ")" : "(" + albumInfoText + ")";
+                        }
+                    } else { 
+                        if (!entry.customlink) {
+                            finalSingerOutput = finalSingerOutput.replace(/\[\[(?:[^|\]]+\|)?([^\]]+)\]\]/g, '$1').replace(/\[\[|\]\]/g, '');
+                        }
+                    }
+
+                    entry.singer = finalSingerOutput;
+                    if (currentDescription) entry.description = currentDescription.trim();
+                    
+                    let finalBaseSingerForCustomlinkCheck = entry.singer.split('#')[0].trim();
+                    const finalBaseIsTemplate = finalBaseSingerForCustomlinkCheck.includes('{{') && finalBaseSingerForCustomlinkCheck.includes('}}');
+                    const finalBaseHasMultiple = finalBaseSingerForCustomlinkCheck.includes(' x ');
+
+                    if (finalBaseIsTemplate || finalBaseHasMultiple) {
+                        entry.customlink = 'true';
+                    } else {
+                        delete entry.customlink;
+                    }
+
+                    const ytMatch = block.match(new RegExp(`\\|yt${i} = ([^\\n|]*)`));
+                    const nndMatch = block.match(new RegExp(`\\|nnd${i} = ([^\\n|]*)`));
+                    const bbMatch = block.match(new RegExp(`\\|bb${i} = ([^\\n|]*)`));
+                    const tmMatch = block.match(new RegExp(`\\|tm${i} = ([^\\n|]*)`));
+                    const scMatch = block.match(new RegExp(`\\|sc${i} = ([^\\n|]*)`));
+                    const koebuMatch = block.match(new RegExp(`\\|koe${i} = ([^\\n|]*)`));
+                    const boxMatch = block.match(new RegExp(`\\|box${i} = ([^\\n|]*)`));
+
+                    if (ytMatch && ytMatch[1].trim()) { entry.YT = ytMatch[1].trim(); entry.originalYT = entry.YT; }
+                    if (nndMatch && nndMatch[1].trim()) { entry.NND = nndMatch[1].trim(); entry.originalNND = entry.NND; }
+                    if (bbMatch && bbMatch[1].trim()) { entry.BB = bbMatch[1].trim(); entry.originalBB = entry.BB; }
+                    
+                    const linksForDescription = [];
+                    if (scMatch && scMatch[1].trim()) {
+                        linksForDescription.push(formatExternalLink('sc', scMatch[1].trim()));
+                        entry.originalLinksRaw.push(`sc: ${scMatch[1].trim()}`);
+                    }
+                    if (koebuMatch && koebuMatch[1].trim()) {
+                        linksForDescription.push(formatExternalLink('koe', koebuMatch[1].trim()));
+                        entry.originalLinksRaw.push(`koe: ${koebuMatch[1].trim()}`);
+                    }
+                    if (tmMatch && tmMatch[1].trim()) {
+                        linksForDescription.push(formatExternalLink('tm', tmMatch[1].trim()));
+                        entry.originalLinksRaw.push(`tm: ${tmMatch[1].trim()}`);
+                    }
+                    if (boxMatch && boxMatch[1].trim()) {
+                        linksForDescription.push(formatExternalLink('box', boxMatch[1].trim()));
+                        entry.originalLinksRaw.push(`box: ${boxMatch[1].trim()}`);
+                    }
+
+                    if (linksForDescription.length > 0) {
+                        entry.description = entry.description ? `${entry.description} ${linksForDescription.join(' ')}` : linksForDescription.join(' ');
+                    }
+                    entry.description = (entry.description || '').trim();
+
+                    entry.image = 'imagename.png'; // Default image
+                    
+                    if (Object.keys(entry).length > 2 || entry.singer || entry.originalSinger) { 
+                        entries.push(entry);
+                    }
+                }
+            });
+            
+            return entries;
+        }
+
+        function displayEntriesInTable(entries) {
+            const tableBody = document.getElementById('parsedEntriesTable').querySelector('tbody');
+            const tableContainer = document.getElementById('parsedTableContainer');
+            const tableContent = document.getElementById('tableContent');
+            const tableEmptyMessage = document.getElementById('tableEmptyMessage');
+            const toggleTableBtnText = document.getElementById('toggleTableBtnText');
+
+            tableBody.innerHTML = ''; // Clear previous entries
+
+            if (entries.length === 0) {
+                tableEmptyMessage.classList.remove('hidden');
+                tableContainer.classList.add('hidden'); // Hide container if no entries
+                return;
+            }
+            
+            tableEmptyMessage.classList.add('hidden');
+            tableContainer.classList.remove('hidden');
+            tableContent.classList.remove('hidden'); // Ensure content area is visible
+            toggleTableBtnText.textContent = 'Hide Table';
+            document.getElementById('toggleTableBtn').querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />';
+
+
+            entries.forEach((entry, index) => {
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = index + 1;
+                row.insertCell().textContent = entry.originalSinger || '-';
+                row.insertCell().textContent = entry.originalCD || '-';
+                row.insertCell().textContent = entry.singer || '-';
+                row.insertCell().textContent = entry.alias || '-';
+                row.insertCell().textContent = entry.description || '-';
+                row.insertCell().textContent = entry.customlink === 'true' ? 'Yes' : 'No';
+                row.insertCell().textContent = entry.YT || '-';
+                row.insertCell().textContent = entry.NND || '-';
+                row.insertCell().textContent = entry.BB || '-';
+                row.insertCell().textContent = entry.originalLinksRaw.join(', ') || '-';
+
+                Array.from(row.cells).forEach(cell => {
+                    cell.classList.add('px-3', 'py-2', 'whitespace-pre-wrap', 'break-words', 'max-w-xs'); 
+                });
+            });
+        }
+        
+        function formatNewTemplate(entries) {
+            let output = '{{NOUT\n|entries=';
+            entries.forEach(entry => {
+                output += '{{NUTE\n';
+                const orderedKeys = ['singer', 'alias', 'description', 'customlink', 'YT', 'NND', 'BB', 'image'];
+                const presentKeys = new Set(Object.keys(entry));
+
+                orderedKeys.forEach(key => {
+                    if (presentKeys.has(key) && entry[key] !== undefined && entry[key] !== '') {
+                        if (key === 'description' && !entry[key].trim()) return;
+                        output += `|${key}=${entry[key]}\n`;
+                        presentKeys.delete(key);
+                    }
+                });
+                presentKeys.forEach(key => {
+                    if (entry[key] !== undefined && entry[key] !== '' && !orderedKeys.includes(key) && 
+                        !key.startsWith('original')) { 
+                        if (key === 'description' && !entry[key].trim()) return;
+                        output += `|${key}=${entry[key]}\n`;
+                    }
+                });
+                output += '}}';
+            });
+            output += '\n}}';
+            return output;
+        }
+        
+        function convert() {
+            const input = document.getElementById('input');
+            const outputTextarea = document.getElementById('output');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorMessageText = document.getElementById('errorMessageText');
+            const convertBtn = document.getElementById('convertBtn');
+            const emptyState = document.getElementById('emptyState');
+            const outputStats = document.getElementById('outputStats');
+            const entryCount = document.getElementById('entryCount');
+            const conversionTime = document.getElementById('conversionTime');
+            const copyBtn = document.getElementById('copyBtn');
+            const parsedTableContainer = document.getElementById('parsedTableContainer');
+            
+            errorMessage.classList.add('hidden');
+            // parsedTableContainer.classList.add('hidden'); // Keep table visible if it was, clear content instead.
+            
+            const originalBtnText = convertBtn.innerHTML;
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Converting...</span>
+            `;
+            
+            setTimeout(() => {
+                const startTime = performance.now();
+                
+                try {
+                    if (!input.value.trim()) {
+                        throw new Error('Please paste old format template first');
+                    }
+                    
+                    const entries = parseOldFormat(input.value);
+                    
+                    if (entries.length === 0) {
+                        displayEntriesInTable([]); 
+                        throw new Error('No valid entries found. Check format and ensure at least one singer field per entry.');
+                    }
+                    
+                    displayEntriesInTable(entries);
+                    
+                    outputTextarea.value = formatNewTemplate(entries);
+                    
+                    entryCount.textContent = entries.length;
+                    const endTime = performance.now();
+                    conversionTime.textContent = `${Math.round(endTime - startTime)}ms`;
+                    outputStats.classList.remove('hidden');
+                    copyBtn.disabled = false;
+                    emptyState.classList.add('hidden');
+                    showToast(`Successfully converted ${entries.length} entries! Table preview updated.`);
+                    
+                    outputTextarea.classList.add('ring-2', 'ring-green-400', 'dark:ring-green-700');
+                    setTimeout(() => {
+                        outputTextarea.classList.remove('ring-2', 'ring-green-400', 'dark:ring-green-700');
+                    }, 1000);
+                    
+                } catch (error) {
+                    outputTextarea.value = '';
+                    errorMessageText.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+                    emptyState.classList.remove('hidden');
+                    outputStats.classList.add('hidden');
+                    copyBtn.disabled = true;
+                    parsedTableContainer.classList.add('hidden'); 
+                    displayEntriesInTable([]); // Also clear table on error
+                    showToast(error.message, 'error');
+                } finally {
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = originalBtnText;
+                }
+            }, 400);
+        }
+        
+        function copyOutput() {
+            const output = document.getElementById('output');
+            if (!output.value) return;
+            output.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Copied to clipboard!');
+                } else {
+                    throw new Error('execCommand failed');
+                }
+            } catch (err) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(output.value)
+                        .then(() => showToast('Copied to clipboard!'))
+                        .catch(() => showToast('Failed to copy. Please try manually.', 'error'));
+                } else {
+                    showToast('Failed to copy. Please try manually.', 'error');
+                }
+            }
+        }
+        
+        function clearInput() {
+            document.getElementById('input').value = '';
+            document.getElementById('input').focus();
+            document.getElementById('parsedTableContainer').classList.add('hidden');
+             displayEntriesInTable([]); // Clear table display
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').value = '';
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('outputStats').classList.add('hidden');
+            document.getElementById('copyBtn').disabled = true;
+            document.getElementById('parsedTableContainer').classList.add('hidden');
+            displayEntriesInTable([]); // Clear table display
+        }
+        
+        function loadExample() {
+            document.getElementById('input').value = `{{Song covers
+|singer1 = [[Shoose/Discography]] (with chorus)
+|yt1 = Dk3zmrPhUBM
+|nnd1 = sm28677959
+|cd1 = #Night Wander
+|sc1 = 283792
+
+|singer2 = [[Araki]]
+|yt2 = DYTXoU_h8qI
+|nnd2 = sm28760033
+
+|singer3 = [[Amatsuki]] x [[Itou Kashitarou]]
+|yt3 = BvEpAn04NZ0
+|nnd3 = sm28799307
+|bb3 = BV1eW41178iM
+|koe3 = 459981
+
+|singer4 = Okurine Lu
+|yt4 = sO3x8JEgE-g
+|tm4 = 261387
+|box4 = qwer1234asdf
+
+|singer5 = [[Page|Display Name]] (some notes)
+|yt5 = exampleYT5
+|cd5 = #TestAlbum
+
+|singer6 = {{Utaite|Nqrse}}
+|yt6 = exampleYT6
+|cd6 = Some CD Maker#Some Album Name
+}}
+
+{{Song covers
+|singer1 = [[LowFat]] x [[Onyu]]
+|yt1 = KG_TSjcNi_8
+|nnd1 = sm28756829
+|cd1 = EXIT TUNES Albums#Ikemen Voice Paradise 7
+}}`;
+            clearOutput();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme); // Changed ID
+            document.getElementById('convertBtn').addEventListener('click', convert);
+            document.getElementById('copyBtn').addEventListener('click', copyOutput);
+            document.getElementById('clearInput').addEventListener('click', () => {
+                clearInput();
+                clearOutput(); 
+            });
+            document.getElementById('useExampleBtn').addEventListener('click', loadExample);
+            
+            document.getElementById('toggleTableBtn').addEventListener('click', () => {
+                const tableContent = document.getElementById('tableContent');
+                const btnText = document.getElementById('toggleTableBtnText');
+                const icon = document.getElementById('toggleTableBtn').querySelector('svg');
+                tableContent.classList.toggle('hidden');
+                if (tableContent.classList.contains('hidden')) {
+                    btnText.textContent = 'Show Table';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />';
+
+                } else {
+                    btnText.textContent = 'Hide Table';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />';
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); convert(); }
+                if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key === 'c' || e.key === 'C')) {
+                    e.preventDefault();
+                    if (!document.getElementById('copyBtn').disabled) { copyOutput(); }
+                }
+                if (e.key === 'Escape') { e.preventDefault(); clearInput(); clearOutput(); }
+            });
+            
+            const outputTextarea = document.getElementById('output');
+            if (outputTextarea.value.trim()) {
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('copyBtn').disabled = false;
+            }
+            
+            const inputTextarea = document.getElementById('input');
+            if (!inputTextarea.value) { inputTextarea.classList.add('cursor-blink'); }
+            inputTextarea.addEventListener('input', function() {
+                if (this.value) { this.classList.remove('cursor-blink'); }
+                else { this.classList.add('cursor-blink'); }
+            });
+        });
+    </script>
+</body>
+</html>
+

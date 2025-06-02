@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utaite Wiki Fandom Utilities</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+
+        html {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            scroll-behavior: smooth; /* For smooth scrolling with #links */
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .skeleton-line {
+            @apply bg-gray-200 dark:bg-slate-700 rounded;
+        }
+        
+        .noise-overlay {
+            background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22a%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.65%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23a)%22/%3E%3C/svg%3E');
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 dark:from-slate-900 dark:via-gray-900 dark:to-slate-800 min-h-screen text-gray-800 dark:text-gray-200 antialiased transition-colors duration-300">
+    <div class="noise-overlay fixed inset-0 opacity-[0.03] dark:opacity-[0.02] z-[-1]"></div>
+    
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-indigo-100 dark:border-slate-700/60 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <a href="/utaitewiki" class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+                <span class="font-semibold text-xl text-gray-700 dark:text-gray-200">Utaite Wiki Tools</span>
+            </a>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <a href="/utaitewiki" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="https://utaite.fandom.com" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors hidden md:inline-flex items-center space-x-1.5 text-sm font-medium px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                    <span>Wiki</span>
+                </a>
+                <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors text-sm font-medium inline-flex items-center space-x-1.5 shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span>Contact</span>
+                </a>
+                <button id="themeToggleBtn" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors" aria-label="Toggle theme">
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <header class="text-center mb-16">
+            <h1 id="main-title" class="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">Loading...</h1>
+            <p id="main-description" class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Loading...</p>
+            
+            <div class="mt-10 inline-flex flex-wrap justify-center gap-3 sm:gap-4">
+                <a href="/utaitewiki#tools-section" class="px-6 py-3 bg-indigo-600 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 inline-flex items-center space-x-2 font-medium">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    <span>Browse Tools</span>
+                </a>
+                <a href="https://arknogh.github.io/utaitewiki/contact/" class="px-6 py-3 bg-white text-indigo-700 border border-indigo-300 dark:bg-slate-700 dark:text-indigo-300 dark:border-indigo-500/70 dark:hover:bg-slate-600 rounded-lg hover:bg-indigo-50 transition-colors shadow-sm hover:shadow-md transform hover:scale-105 inline-flex items-center space-x-2 font-medium">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>Get Help</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="max-w-2xl mx-auto mb-16">
+            <div class="relative">
+                <input type="text" id="search-tools" placeholder="Search for a tool (e.g., Album Converter)" class="w-full px-5 py-3.5 rounded-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 transition duration-200 outline-none shadow-sm text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500">
+                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                    <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="tools-section" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-10 text-center text-gray-700 dark:text-gray-200">
+                <span class="inline-block bg-indigo-100 text-indigo-800 dark:bg-indigo-700/30 dark:text-indigo-200 px-5 py-2 rounded-full">Available Utilities</span>
+            </h2>
+            <div id="tools-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+                <div class="bg-white/50 dark:bg-slate-800/30 rounded-xl shadow-lg p-6 animate-pulse min-h-[288px]">
+                    <div class="h-6 w-3/4 mb-4 skeleton-line"></div>
+                    <div class="h-4 w-full mb-2 skeleton-line"></div>
+                    <div class="h-4 w-5/6 mb-2 skeleton-line"></div>
+                    <div class="h-4 w-full mb-4 skeleton-line"></div>
+                    <div class="h-10 w-32 mt-6 skeleton-line"></div>
+                </div>
+                <div class="bg-white/50 dark:bg-slate-800/30 rounded-xl shadow-lg p-6 animate-pulse min-h-[288px]">
+                     <div class="h-6 w-3/4 mb-4 skeleton-line"></div>
+                    <div class="h-4 w-full mb-2 skeleton-line"></div>
+                    <div class="h-4 w-5/6 mb-2 skeleton-line"></div>
+                    <div class="h-4 w-full mb-4 skeleton-line"></div>
+                    <div class="h-10 w-32 mt-6 skeleton-line"></div>
+                </div>
+                <div class="bg-white/50 dark:bg-slate-800/30 rounded-xl shadow-lg p-6 animate-pulse min-h-[288px]">
+                     <div class="h-6 w-3/4 mb-4 skeleton-line"></div>
+                    <div class="h-4 w-full mb-2 skeleton-line"></div>
+                    <div class="h-4 w-5/6 mb-2 skeleton-line"></div>
+                    <div class="h-4 w-full mb-4 skeleton-line"></div>
+                    <div class="h-10 w-32 mt-6 skeleton-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-24 text-center text-gray-600 dark:text-gray-400 border-t border-indigo-100 dark:border-slate-700/60 pt-10">
+            <div class="flex justify-center space-x-6 mb-8">
+                <a href="https://github.com/arknogh/utaitewiki" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" aria-label="GitHub">
+                    <i class="fab fa-github text-3xl"></i>
+                </a>
+                <a href="https://twitter.com/UtaiteWiki" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" aria-label="Twitter">
+                    <i class="fab fa-twitter text-3xl"></i>
+                </a>
+                <a href="https://discord.com/invite/jAw6ytcVKA" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" aria-label="Discord">
+                    <i class="fab fa-discord text-3xl"></i>
+                </a>
+            </div>
+            <p class="mb-2 text-sm">More utilities will be added soon to help manage and improve the Utaite Wiki Fandom.</p>
+            <p class="text-xs text-gray-500 dark:text-gray-500">© 2025 Utaite Wiki Fandom Utilities. Made and maintained by Ark.</p>
+        </footer>
+    </div>
+
+    <script>
+        function createFeatureCard(feature) {
+            let badgeHTML = '';
+            if (feature.status === 'pending') {
+                badgeHTML = `<span class="absolute top-3 right-3 px-2.5 py-0.5 bg-yellow-200 dark:bg-yellow-700/50 text-yellow-800 dark:text-yellow-200 text-xs font-semibold rounded-full shadow-sm">Coming Soon</span>`;
+            } else if (feature.isNew) {
+                badgeHTML = `<span class="absolute top-3 right-3 px-2.5 py-0.5 bg-green-200 dark:bg-green-700/50 text-green-800 dark:text-green-200 text-xs font-semibold rounded-full shadow-sm">New!</span>`;
+            }
+
+            if (feature.status === 'pending') {
+                return `
+                <div class="bg-white/70 dark:bg-slate-800/50 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700/80 relative transition-all duration-300 ease-in-out hover:shadow-xl hover:transform hover:-translate-y-1 flex flex-col min-h-[288px] opacity-80 dark:opacity-70">
+                    ${badgeHTML}
+                    <div class="${feature.backgroundColor || 'bg-gray-400 dark:bg-gray-600'} p-5">
+                        <div class="flex items-center">
+                            <i class="${feature.icon || 'fa-solid fa-tools'} text-white text-2xl mr-3.5"></i>
+                            <h3 class="text-xl font-semibold text-white truncate">${feature.title}</h3>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-gray-700 dark:text-gray-300 font-medium mb-3 text-lg">${feature.shortTitle || feature.title}</h4>
+                            <div class="animate-pulse-slow space-y-2.5">
+                                <div class="h-3.5 bg-gray-300 dark:bg-slate-600 rounded w-3/4"></div>
+                                <div class="h-3.5 bg-gray-300 dark:bg-slate-600 rounded w-1/2"></div>
+                                <div class="h-3.5 bg-gray-300 dark:bg-slate-600 rounded w-5/6"></div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button disabled class="w-full sm:w-auto inline-flex items-center justify-center bg-gray-400 dark:bg-slate-600 text-white dark:text-gray-300 px-5 py-2.5 rounded-lg cursor-not-allowed text-sm font-medium">
+                                <i class="fa-solid fa-hourglass-half mr-2"></i> Coming Soon
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            const bulletPoints = feature.bullets.map(bullet => `
+                <li class="flex items-start text-gray-600 dark:text-gray-400 text-sm">
+                    <i class="fa-solid fa-check-circle text-indigo-500 dark:text-indigo-400 mt-1 mr-2 shrink-0"></i>
+                    <span>${bullet}</span>
+                </li>
+            `).join('');
+
+            return `
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-slate-700 relative transition-all duration-300 ease-in-out hover:shadow-2xl hover:transform hover:-translate-y-1.5 flex flex-col min-h-[288px]">
+                ${badgeHTML}
+                <div class="${feature.backgroundColor || 'bg-indigo-600 dark:bg-indigo-500'} p-5">
+                    <div class="flex items-center">
+                        <i class="${feature.icon || 'fa-solid fa-tools'} text-white text-2xl mr-3.5"></i>
+                        <h3 class="text-xl font-semibold text-white truncate" title="${feature.title}">${feature.title}</h3>
+                    </div>
+                </div>
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-gray-800 dark:text-gray-100 font-semibold mb-2 text-lg">${feature.shortTitle}</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-relaxed">
+                            ${feature.description}
+                        </p>
+                        <ul class="space-y-1.5 mb-6">
+                            ${bulletPoints}
+                        </ul>
+                    </div>
+                    <div class="mt-auto">
+                        <a href="${feature.url}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center bg-indigo-600 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md hover:shadow-lg text-sm font-medium transform hover:scale-105">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Access Tool
+                        </a>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        async function loadFeatures() {
+            const toolsGrid = document.getElementById('tools-grid');
+            try {
+                const response = await fetch('./features.json'); 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                document.getElementById('main-title').textContent = data.title || "Utaite Wiki Utilities";
+                document.getElementById('main-description').textContent = data.description || "A collection of tools to help manage and contribute to the Utaite Wiki Fandom.";
+                
+                toolsGrid.innerHTML = data.features.map(feature => createFeatureCard(feature)).join('');
+                
+                const searchInput = document.getElementById('search-tools');
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    const filteredFeatures = data.features.filter(feature => 
+                        feature.title.toLowerCase().includes(searchTerm) || 
+                        feature.description.toLowerCase().includes(searchTerm) ||
+                        feature.shortTitle.toLowerCase().includes(searchTerm) ||
+                        (feature.bullets && feature.bullets.some(bullet => bullet.toLowerCase().includes(searchTerm))) ||
+                        (feature.tags && feature.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+                    );
+                    
+                    if (filteredFeatures.length > 0) {
+                        toolsGrid.innerHTML = filteredFeatures.map(feature => createFeatureCard(feature)).join('');
+                    } else {
+                        toolsGrid.innerHTML = `
+                        <div class="sm:col-span-2 lg:col-span-3 text-center py-12">
+                            <i class="fa-solid fa-magnifying-glass text-5xl text-gray-300 dark:text-slate-600 mb-6"></i>
+                            <p class="text-xl text-gray-500 dark:text-gray-400 font-medium">No tools match your search criteria.</p>
+                            <p class="text-gray-400 dark:text-gray-500 mt-2">Try a different keyword or browse all tools.</p>
+                        </div>`;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading features.json:', error);
+                document.getElementById('main-title').textContent = "Utaite Wiki Utilities";
+                document.getElementById('main-description').textContent = "A collection of tools to help manage and contribute to the Utaite Wiki Fandom.";
+                toolsGrid.innerHTML = `
+                <div class="sm:col-span-2 lg:col-span-3 text-center py-12 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-700/50">
+                    <i class="fa-solid fa-circle-exclamation text-5xl text-red-400 dark:text-red-500 mb-6"></i>
+                    <p class="text-xl text-red-600 dark:text-red-400 font-semibold">Error Loading Features</p>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2 mb-6">Could not load the list of available tools. The file 'features.json' might be missing or there was a network issue.</p>
+                    <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Details: ${error.message}</p>
+                    <button onclick="loadFeatures()" class="px-5 py-2.5 bg-indigo-600 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Try Again
+                    </button>
+                </div>
+                `;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFeatures();
+
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            
+            const applyTheme = (theme) => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    if (sunIcon) sunIcon.classList.add('hidden');
+                    if (moonIcon) moonIcon.classList.remove('hidden');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    if (sunIcon) sunIcon.classList.remove('hidden');
+                    if (moonIcon) moonIcon.classList.add('hidden');
+                    localStorage.setItem('theme', 'light');
+                }
+            };
+
+            const userTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            let currentTheme;
+            if (userTheme === 'dark' || (!userTheme && systemPrefersDark)) {
+                currentTheme = 'dark';
+            } else {
+                currentTheme = 'light';
+            }
+            applyTheme(currentTheme);
+            
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                    applyTheme(newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

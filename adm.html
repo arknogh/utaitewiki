@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" class=""> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Data Formatter Deluxe</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+
+        @layer base {
+          button:not(:disabled),
+          [role="button"]:not(:disabled) {
+            @apply cursor-pointer;
+          }
+          html {
+            @apply scroll-smooth;
+          }
+          body {
+            @apply antialiased text-slate-700 dark:text-slate-300;
+          }
+          /* Custom focus ring for better visibility */
+          *:focus-visible {
+            @apply outline-none ring-2 ring-indigo-500 dark:ring-indigo-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900;
+          }
+          /* Removing default outline since we use ring */
+          *:focus {
+            @apply outline-none;
+          }
+        }
+
+        /* Custom scrollbar for a more polished look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            @apply bg-slate-100 dark:bg-slate-700;
+        }
+        ::-webkit-scrollbar-thumb {
+            @apply bg-slate-400 dark:bg-slate-500 rounded-full;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            @apply bg-slate-500 dark:bg-slate-400;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen p-4 sm:p-8 transition-colors duration-300">
+
+    <button id="theme-toggle" class="fixed top-4 right-4 z-50 p-2.5 bg-slate-200 dark:bg-slate-700 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+        <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+    <div id="app" class="max-w-4xl mx-auto bg-white dark:bg-slate-800 shadow-2xl rounded-xl p-6 sm:p-8 mb-20 transition-colors duration-300">
+
+        <h1 class="text-3xl font-bold mb-8 text-center text-indigo-600 dark:text-indigo-400">Album Data Formatter</h1>
+        
+        <div class="mb-8 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+            <label class="flex items-center justify-between cursor-pointer group">
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Use separate Japanese/Romaji/English titles</span>
+                <div class="relative">
+                    <input type="checkbox" id="title-format-toggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-300 dark:bg-slate-600 rounded-full peer peer-checked:bg-indigo-600 dark:peer-checked:bg-indigo-500 transition-colors"></div>
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform peer-checked:translate-x-5"></div>
+                </div>
+            </label>
+        </div>
+
+        <div id="basic-fields-container" class="mb-10">
+            <h2 class="text-xl font-semibold mb-5 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-2">Basic Information</h2>
+            <div id="basic-fields" class="space-y-4">
+                </div>
+        </div>
+
+        <div id="tracks-container" class="mb-10">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-200 dark:border-slate-700 pb-2">
+                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Track Information</h2>
+            </div>
+            <div id="tracks" class="space-y-6">
+                <p id="no-tracks-message" class="text-center text-slate-500 dark:text-slate-400 py-4">No tracks added yet. Click the '+' button on the bottom-right of the page to add a track.</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <button id="copy-all-button" class="w-full sm:w-auto flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition-all duration-150 shadow-md hover:shadow-lg">
+                Copy All Data
+            </button>
+            <button id="clear-button" class="w-full sm:w-auto flex-1 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 active:bg-red-800 transition-all duration-150 shadow-md hover:shadow-lg">
+                Clear All Fields
+            </button>
+        </div>
+        <a href="./cata2tt.html" target="_blank">
+            <span class="inline-block w-full mt-8 px-6 py-3 text-white font-semibold rounded-lg hover:bg-green-500 bg-green-600 transition-all duration-150 shadow-md hover:shadow-lg text-center">Open AlbumType2 Generator</span>
+        </a>
+    </div>
+
+    <button 
+        id="add-track-button"
+        title="Add New Track"
+        class="fixed bottom-8 right-8 w-16 h-16 bg-indigo-600 text-white rounded-full shadow-xl hover:bg-indigo-700 active:bg-indigo-800 focus:outline-hidden focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 dark:focus:ring-indigo-400 flex items-center justify-center text-3xl font-light transition-all duration-150 transform hover:scale-110"
+    >
+        +
+    </button>
+
+    <script>
+        // THEME TOGGLE LOGIC
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        const htmlElement = document.documentElement;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            applyTheme(currentTheme);
+        });
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+
+        // ALBUM FORMATTER LOGIC
+        class AlbumFormatter {
+            constructor() {
+                this.baseFieldsConfig = [
+                    { id: 'image', label: 'Image URL' }, { id: 'imagealt', label: 'Image Alt 1' },
+                    { id: 'imagealt3', label: 'Image Alt 2' }, { id: 'imagealt4', label: 'Image Alt 3' },
+                    { id: 'imagealt5', label: 'Image Alt 4' }, { id: 'albumartist', label: 'Album Artist' },
+                    { id: 'datereleased', label: 'Date Released' }, { id: 'crossfadeyt', label: 'Crossfade YT URL' },
+                    { id: 'crossfadennd', label: 'Crossfade NND URL' }, { id: 'streams', label: 'Streaming Links' },
+                    { id: 'shops', label: 'Shop Links' }, { id: 'downloads', label: 'Download Links' }
+                ];
+                this.trackFieldsConfig = [
+                    { id: 'title', label: 'Title' }, { id: 'info', label: 'Info (e.g., feat.)' },
+                    { id: 'utaite', label: 'Utaite(s)' }, { id: 'lyricist', label: 'Lyricist(s)' },
+                    { id: 'composer', label: 'Composer(s)' }, { id: 'arranger', label: 'Arranger(s)' }
+                ];
+                this.trackCount = 0;
+                this.nextTrackId = 1;
+                this.useSeparateTitles = false;
+
+                this.noTracksMessage = document.getElementById('no-tracks-message');
+                this.tracksContainerElement = document.getElementById('tracks');
+
+                this.init();
+            }
+
+            get currentBasicFieldsConfig() {
+                const dynamicTitleFields = [
+                    { id: 'officialjaptitle', label: 'Official Japanese Title' },
+                    { id: 'officialromtitle', label: 'Official Romaji Title' },
+                    { id: 'officialengtitle', label: 'Official English Title' }
+                ];
+                const singleTitleField = [{ id: 'albumtitle', label: 'Album Title' }];
+
+                if (this.useSeparateTitles) {
+                    return [...dynamicTitleFields, ...this.baseFieldsConfig];
+                }
+                return [...singleTitleField, ...this.baseFieldsConfig];
+            }
+
+            init() {
+                this.createBasicFields();
+                this.bindEvents();
+                this.updateNoTracksMessage();
+            }
+
+            updateNoTracksMessage() {
+                if (this.noTracksMessage) {
+                    this.noTracksMessage.style.display = this.trackCount === 0 ? 'block' : 'none';
+                }
+            }
+
+            createBasicFields() {
+                const container = document.getElementById('basic-fields');
+                container.innerHTML = '';
+
+                this.currentBasicFieldsConfig.forEach(fieldConfig => {
+                    const fieldGroup = document.createElement('div');
+                    fieldGroup.className = 'grid grid-cols-1 sm:grid-cols-3 gap-2 items-center';
+
+                    fieldGroup.innerHTML = `
+                        <label for="field-${fieldConfig.id}" class="text-sm font-medium text-slate-700 dark:text-slate-300 sm:col-span-1">${fieldConfig.label}:</label>
+                        <input
+                            type="text"
+                            id="field-${fieldConfig.id}"
+                            name="field-${fieldConfig.id}"
+                            class="sm:col-span-2 w-full p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg shadow-xs bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-500 transition-colors duration-150"
+                            placeholder="${fieldConfig.label}"
+                        >
+                    `;
+                    container.appendChild(fieldGroup);
+                });
+            }
+
+            createTrackSection() {
+                const uniqueTrackId = this.nextTrackId;
+                this.nextTrackId++;
+
+                const trackSection = document.createElement('div');
+                trackSection.id = `track-section-${uniqueTrackId}`;
+                trackSection.className = 'border border-slate-300 dark:border-slate-700 rounded-xl p-4 sm:p-5 relative bg-white dark:bg-slate-800/30 shadow-sm transition-colors duration-150';
+
+                trackSection.innerHTML = `
+                    <button
+                        type="button"
+                        title="Remove Track"
+                        class="absolute top-3 right-3 p-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                        onclick="albumFormatter.removeTrack('${uniqueTrackId}')"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <h3 class="track-title-heading text-lg font-semibold mb-4 text-indigo-600 dark:text-indigo-400">Track <span class="track-display-number">0</span></h3> <div class="space-y-4">
+                        ${this.trackFieldsConfig.map(fieldConfig => `
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
+                                <label for="track-${uniqueTrackId}-${fieldConfig.id}" class="text-sm font-medium text-slate-700 dark:text-slate-300 sm:col-span-1">${fieldConfig.label}:</label>
+                                <input
+                                    type="text"
+                                    id="track-${uniqueTrackId}-${fieldConfig.id}" name="track-${uniqueTrackId}-${fieldConfig.id}" class="sm:col-span-2 w-full p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg shadow-xs bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-50 placeholder-slate-400 dark:placeholder-slate-500 transition-colors duration-150"
+                                    placeholder="${fieldConfig.label}"
+                                >
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                this.tracksContainerElement.appendChild(trackSection);
+                this.reorderDisplayedTrackNumbers();
+                this.updateNoTracksMessage();
+            }
+
+            removeTrack(trackIdSuffix) {
+                const trackElement = document.getElementById(`track-section-${trackIdSuffix}`);
+                if (trackElement) {
+                    trackElement.remove();
+                    this.reorderDisplayedTrackNumbers();
+                    this.updateNoTracksMessage();
+                }
+            }
+
+            reorderDisplayedTrackNumbers() {
+                const trackElements = Array.from(this.tracksContainerElement.querySelectorAll('[id^="track-section-"]'));
+                trackElements.forEach((trackElement, index) => {
+                    const displayNumberElement = trackElement.querySelector('.track-display-number');
+                    if (displayNumberElement) {
+                        displayNumberElement.textContent = index + 1;
+                    }
+                });
+                this.trackCount = trackElements.length;
+            }
+
+            bindEvents() {
+                document.getElementById('add-track-button').addEventListener('click', () => this.createTrackSection());
+                document.getElementById('copy-all-button').addEventListener('click', () => this.copyAllInfo());
+                document.getElementById('clear-button').addEventListener('click', () => this.clearAll());
+                document.getElementById('title-format-toggle').addEventListener('change', (e) => {
+                    this.useSeparateTitles = e.target.checked;
+                    this.createBasicFields();
+                });
+            }
+
+            async copyToClipboard(text) {
+                if (!text.trim()) {
+                    this.showNotification('Nothing to copy!', true);
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(text);
+                    this.showNotification('Copied to clipboard!');
+                } catch (err) {
+                    this.showNotification('Failed to copy. Try manually.', true);
+                }
+            }
+
+            showNotification(message, isError = false) {
+                const notification = document.createElement('div');
+                notification.className = `fixed bottom-6 left-1/2 -translate-x-1/2 p-4 rounded-lg text-white text-sm font-medium shadow-xl transition-all duration-300 ease-in-out transform opacity-0 translate-y-2
+                    ${isError ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                requestAnimationFrame(() => {
+                    notification.classList.remove('opacity-0', 'translate-y-2');
+                    notification.classList.add('opacity-100', 'translate-y-0');
+                });
+
+                setTimeout(() => {
+                    notification.classList.remove('opacity-100', 'translate-y-0');
+                    notification.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            getBasicInfo() {
+                let text = '';
+                this.currentBasicFieldsConfig.forEach(fieldConfig => {
+                    const inputElement = document.getElementById(`field-${fieldConfig.id}`);
+                    if (inputElement) {
+                        const value = inputElement.value.trim();
+                        if (value) {
+                            text += `${fieldConfig.id}: ${value}\n`;
+                        }
+                    }
+                });
+                return text;
+            }
+
+            getTrackInfo() {
+                let text = '';
+                const trackElements = Array.from(this.tracksContainerElement.querySelectorAll('[id^="track-section-"]'));
+
+                trackElements.forEach((trackElement, index) => {
+                    const displayNumber = index + 1;
+                    text += `\nTrack ${displayNumber}:\n`;
+
+                    const trackIdSuffix = trackElement.id.split('-').pop();
+
+                    this.trackFieldsConfig.forEach(fieldConfig => {
+                        const inputElement = document.getElementById(`track-${trackIdSuffix}-${fieldConfig.id}`);
+                        if (inputElement) {
+                            const value = inputElement.value.trim();
+                            if (value) text += `${fieldConfig.id}: ${value}\n`;
+                        }
+                    });
+                });
+                return text;
+            }
+
+            copyAllInfo() {
+                const basicInfo = this.getBasicInfo().trim();
+                const trackInfo = this.getTrackInfo().trim();
+                let combinedInfo = basicInfo;
+                if (basicInfo && trackInfo) {
+                    combinedInfo += '\n\n' + trackInfo;
+                } else if (trackInfo) {
+                    combinedInfo = trackInfo;
+                }
+                this.copyToClipboard(combinedInfo.trim());
+            }
+
+            clearAll() {
+                this.currentBasicFieldsConfig.forEach(fieldConfig => {
+                    const inputElement = document.getElementById(`field-${fieldConfig.id}`);
+                    if (inputElement) inputElement.value = '';
+                });
+
+                this.tracksContainerElement.innerHTML = '';
+                this.trackCount = 0;
+                this.nextTrackId = 1;
+                this.updateNoTracksMessage();
+                this.showNotification('All fields cleared successfully.');
+            }
+        }
+
+        let albumFormatter;
+        document.addEventListener('DOMContentLoaded', () => {
+            albumFormatter = new AlbumFormatter();
+        });
+    </script>
+
+</body>
+</html>

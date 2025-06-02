@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utacolle JSON to MediaWiki Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hidden {
+      display: none;
+    }
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+    }
+    .modal-content {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 100;
+      width: 90%;
+      max-width: 600px;
+    }
+    /* Toast animation styles */
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-enter {
+      animation: slideIn 0.3s ease forwards;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-center">Utacolle JSON to MediaWiki Converter</h1>
+    
+    <!-- Top Controls -->
+    <div class="mb-8 flex flex-col md:flex-row gap-4 justify-between">
+      <div class="w-full md:w-1/2">
+        <h2 class="text-xl font-semibold mb-2">Import Data</h2>
+        <div class="flex flex-wrap gap-2">
+          <button id="load-sample-data" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            Load Sample Data
+          </button>
+          <button id="import-json" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+            Import JSON
+          </button>
+          <button id="clear-data" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+            Clear Data
+          </button>
+        </div>
+      </div>
+      
+      <div class="w-full md:w-1/2">
+        <h2 class="text-xl font-semibold mb-2">Add New Entry</h2>
+        <button id="add-new-entry" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full">
+          Add New Entry
+        </button>
+      </div>
+    </div>
+    
+    <!-- Table Section -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+      <div class="overflow-x-auto">
+        <table id="data-table" class="min-w-full">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">#</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Song Title</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Utaite Name</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Utaite Wiki Page</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Video ID</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Table rows will be inserted here via JavaScript -->
+            <tr>
+              <td colspan="6" class="px-4 py-4 text-center text-gray-500">No data available. Load sample data or add entries.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Output Section -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-2">MediaWiki Output</h2>
+      <div class="mb-4">
+        <button id="generate-output" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
+          Generate MediaWiki Code
+        </button>
+        <button id="copy-output" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+          Copy to Clipboard
+        </button>
+      </div>
+      <textarea id="output-code" class="w-full h-64 p-4 border border-gray-300 rounded font-mono text-sm" readonly></textarea>
+    </div>
+  </div>
+  
+  <!-- Edit/Add Modal -->
+  <div id="edit-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <h2 id="modal-title" class="text-xl font-semibold mb-4">Edit Entry</h2>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+        
+        <div class="mb-4">
+          <label for="edit-ranking" class="block text-sm font-medium text-gray-700 mb-1">Ranking</label>
+          <input type="number" id="edit-ranking" class="w-full p-2 border border-gray-300 rounded" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="edit-song-title" class="block text-sm font-medium text-gray-700 mb-1">Song Title</label>
+          <input type="text" id="edit-song-title" class="w-full p-2 border border-gray-300 rounded" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="edit-utaite" class="block text-sm font-medium text-gray-700 mb-1">Utaite Name</label>
+          <input type="text" id="edit-utaite" class="w-full p-2 border border-gray-300 rounded" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="edit-wiki-page" class="block text-sm font-medium text-gray-700 mb-1">Utaite Wiki Page (optional)</label>
+          <input type="text" id="edit-wiki-page" class="w-full p-2 border border-gray-300 rounded" placeholder="English name or leave empty">
+        </div>
+        
+        <div class="mb-6">
+          <label for="edit-video-id" class="block text-sm font-medium text-gray-700 mb-1">Video ID</label>
+          <input type="text" id="edit-video-id" class="w-full p-2 border border-gray-300 rounded" required>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <button type="button" id="cancel-edit" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">
+            Cancel
+          </button>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="./utacolle.js"></script>
+  <script src="./utacolle.importjson.js"></script>
+</body>
+</html>

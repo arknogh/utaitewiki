@@ -1,0 +1,189 @@
+{
+  "title": "Utaite Wiki Fandom Utilities",
+  "description": "A collection of tools to help manage and improve the Utaite Wiki",
+  "features": [
+    {
+      "id": "upb",
+      "title": "Utaite Page Builder",
+      "shortTitle": "Utaite Page Builder",
+      "description": "Utaite Page Builder.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./upb/",
+      "bullets": [
+        "Build new utaite articles!",
+        "User-friendly form",
+        "Easy to Use",
+        "You won't ever regret it!"
+      ]
+    },
+    {
+      "id": "scttc",
+      "title": "Song Covers Template Counter",
+      "shortTitle": "Song Covers Template Counter",
+      "description": "Analyzes and counts old song template transclusions across the wiki, providing valuable statistics and insights.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./scttc.html",
+      "bullets": [
+        "Total template count",
+        "Detailed statistics"
+      ]
+    },
+    {
+      "id": "cstu",
+      "title": "Convert Song Template Utility",
+      "shortTitle": "Convert Song Template Utility",
+      "description": "Converts old <a href=\"https://utaite.fandom.com/wiki/Template:Song covers\" target=\"_blank\">Song covers</a> template transclusion to <a href=\"https://utaite.fandom.com/wiki/Template:NotableUtattemita/Table\" target=\"_blank\">NotableUtattemita</a> template transclusion format.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./cstu.html",
+      "bullets": [
+        "Automatic template conversion",
+        "Preserves page content"
+      ]
+    },
+    {
+      "id": "cspf",
+      "title": "Song to Utattemita Template Converter",
+      "shortTitle": "Song Template Converter",
+      "description": "Converts old <a href=\"https://utaite.fandom.com/wiki/Template:Song\" target=\"_blank\">Song</a> template format to new <a href=\"https://utaite.fandom.com/wiki/Template:Utattemita\" target=\"_blank\">Utattemita</a> format with TabberType2 structure.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./cspf.html",
+      "bullets": [
+        "One-click template conversion",
+        "Preserves all original fields",
+        "Maintains MediaWiki case sensitivity",
+        "Clean Tailwind CSS interface"
+      ]
+    },
+    {
+      "id": "adm",
+      "title": "Album Data Formatter",
+      "shortTitle": "Album Formatter",
+      "description": "Album Data Formatter for creating consistently structured album data entries with proper field naming, supporting both combined and separate title formats for multilingual content.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./adm.html",
+      "bullets": [
+        "Support for multilingual titles",
+        "Dynamic track addition",
+        "Consistent field formatting",
+        "One-click data copying"
+      ]
+    },
+    {
+      "id": "cata2tt",
+      "title": "Album Info to AlbumType2 Converter",
+      "shortTitle": "Album Template Converter",
+      "description": "Converts raw album information into the AlbumType2 template format, automatically handling field mapping, stream links, and track formatting for wiki pages.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./cata2tt.html",
+      "bullets": [
+        "Automatic track parsing",
+        "Smart link conversion",
+        "Preserves metadata structure",
+        "Support for multiple album formats"
+      ]
+    },
+    {
+      "id": "ap",
+      "title": "Album Template Parser",
+      "shortTitle": "Album Parser",
+      "description": "Album Template Parser that extracts information from existing Album templates, providing a convenient way to retrieve and reuse album data fields in different formats.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./ap.html",
+      "bullets": [
+        "Extract data from existing templates",
+        "Copy individual or all fields",
+        "Easy data retrieval for migration"
+      ]
+    },
+    {
+      "id": "json2fuce",
+      "title": "JSON to FUCE Converter",
+      "shortTitle": "JSON to FUCE Converter",
+      "description": "Converts JSON data into FUCE template transclusion format for easy integration with wiki pages.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./json2fuce.html",
+      "bullets": [
+        "Automatic JSON parsing",
+        "Smart UFU handling"
+      ]
+    },
+    {
+      "id": "cssrt",
+      "title": "Subtitle Format Converter",
+      "shortTitle": "Subtitle Converter",
+      "description": "A versatile subtitle format converter that transforms SRT, VTT, and ASS/SSA subtitle files between formats, allowing for easy conversion while preserving timing and formatting.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./cssrt.html",
+      "bullets": [
+        "Supports SRT, VTT, and ASS/SSA formats",
+        "Preserves timing and formatting",
+        "One-click download of converted files",
+        "Drag and drop file uploading"
+      ]
+    },
+    {
+      "id": "woff2642",
+      "title": "WOFF/WOFF2 to Base64 Converter",
+      "shortTitle": "WOFF/WOFF2 Converter",
+      "description": "Convert WOFF and WOFF2 font files to Base64 encoded data URLs, allowing for direct embedding in CSS files and HTML documents.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./woff2642.html",
+      "bullets": [
+        "Support for both WOFF and WOFF2 formats",
+        "Multiple file conversion",
+        "One-click copying of encoded data",
+        "Drag and drop interface"
+      ]
+    },
+    {
+      "id": "ttfto64",
+      "title": "TTF to Base64 Converter",
+      "shortTitle": "TTF Converter",
+      "description": "TTF font converter that transforms TrueType fonts into Base64 encoded data URLs for web embedding, with multi-file processing capabilities.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./ttfto64.html",
+      "bullets": [
+        "TrueType font encoding",
+        "Batch conversion support",
+        "Direct data URL generation",
+        "Simple copy functionality"
+      ]
+    },
+    {
+      "id": "woff264",
+      "title": "WOFF to Base64 Converter",
+      "shortTitle": "WOFF Converter",
+      "description": "Simple WOFF to Base64 converter that creates data URLs from Web Open Font Format files for direct use in web stylesheets.",
+      "status": "active",
+      "backgroundColor": "bg-indigo-600",
+      "url": "./woff264.html",
+      "bullets": [
+        "WOFF file encoding",
+        "Data URL generation",
+        "Single-file processing",
+        "Clipboard integration"
+      ]
+    },
+    {
+      "id": "coming-soon",
+      "title": "Coming Soon",
+      "shortTitle": "Coming Soon",
+      "description": "",
+      "status": "pending",
+      "backgroundColor": "bg-gray-500",
+      "url": "",
+      "bullets": []
+    }
+  ]
+}

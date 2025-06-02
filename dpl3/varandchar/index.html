@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DPL3 Variables and Handy Characters</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --text: #111827;
+      --header: #1f2937;
+      --border: #d1d5db;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --text: #f3f4f6;
+        --header: #f9fafb;
+        --border: #374151;
+      }
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+    }
+    header h1 {
+      color: var(--header);
+    }
+    table {
+      border-color: var(--border);
+    }
+    th, td {
+      border-color: var(--border);
+    }
+    footer {
+      border-color: var(--border);
+      color: var(--text);
+    }
+  </style>
+</head>
+<body class="p-6">
+  <div class="max-w-6xl mx-auto space-y-12">
+    <header class="text-center">
+      <h1 class="text-4xl font-bold">DPL3 Variables and Handy Characters</h1>
+      <p class="text-gray-600 dark:text-gray-300 mt-2">Reference for editors using DPL3</p>
+    </header>
+
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">DPL3 Variables</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full table-auto border text-sm">
+          <thead class="bg-gray-100 dark:bg-gray-800">
+            <tr>
+              <th class="border px-4 py-2 text-left">Variable</th>
+              <th class="border px-4 py-2 text-left">Description</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-900">
+            <tr><td class="border px-4 py-2">%NR%</td><td class="border px-4 py-2">Sequence number of the item in the list</td></tr>
+            <tr><td class="border px-4 py-2">%PAGE%</td><td class="border px-4 py-2">Full page name including namespace</td></tr>
+            <tr><td class="border px-4 py-2">%PAGEID%</td><td class="border px-4 py-2">Internal numeric page ID</td></tr>
+            <tr><td class="border px-4 py-2">%IMAGE%</td><td class="border px-4 py-2">Image file path used in the page</td></tr>
+            <tr><td class="border px-4 py-2">%PAGESEL%</td><td class="border px-4 py-2">Page matching selection criterion</td></tr>
+            <tr><td class="border px-4 py-2">%IMAGESEL%</td><td class="border px-4 py-2">Image name used in selection criterion</td></tr>
+            <tr><td class="border px-4 py-2">%TITLE%</td><td class="border px-4 py-2">Title without namespace</td></tr>
+            <tr><td class="border px-4 py-2">%NAMESPACE%</td><td class="border px-4 py-2">Page's namespace</td></tr>
+            <tr><td class="border px-4 py-2">%SIZE%</td><td class="border px-4 py-2">Page size in bytes</td></tr>
+            <tr><td class="border px-4 py-2">%SIZEFS%</td><td class="border px-4 py-2">Font-size scaled by page size</td></tr>
+            <tr><td class="border px-4 py-2">%COUNT%</td><td class="border px-4 py-2">Page view count (deprecated)</td></tr>
+            <tr><td class="border px-4 py-2">%COUNTFS%</td><td class="border px-4 py-2">Font-size by log usage count (deprecated)</td></tr>
+            <tr><td class="border px-4 py-2">%COUNTFS2%</td><td class="border px-4 py-2">Font-size by sqrt usage count (deprecated)</td></tr>
+            <tr><td class="border px-4 py-2">%DATE%</td><td class="border px-4 py-2">Date from query (e.g. edit date)</td></tr>
+            <tr><td class="border px-4 py-2">%USER%</td><td class="border px-4 py-2">Last editor username</td></tr>
+            <tr><td class="border px-4 py-2">%CONTRIBUTOR%</td><td class="border px-4 py-2">User who made the edit</td></tr>
+            <tr><td class="border px-4 py-2">%CONTRIBUTION%</td><td class="border px-4 py-2">Byte difference in edit</td></tr>
+            <tr><td class="border px-4 py-2">%CONTRIB%</td><td class="border px-4 py-2">Asterisks proportional to contribution</td></tr>
+            <tr><td class="border px-4 py-2">%CATLIST%</td><td class="border px-4 py-2">Pipe-separated list of categories</td></tr>
+            <tr><td class="border px-4 py-2">%CATBULLETS%</td><td class="border px-4 py-2">Bulleted list of categories</td></tr>
+            <tr><td class="border px-4 py-2">%CATNAMES%</td><td class="border px-4 py-2">Comma-separated category names</td></tr>
+            <tr><td class="border px-4 py-2">%REVISION%</td><td class="border px-4 py-2">Revision ID of the page</td></tr>
+            <tr><td class="border px-4 py-2">%EDITSUMMARY%</td><td class="border px-4 py-2">Edit summary/comment</td></tr>
+            <tr><td class="border px-4 py-2">%EXTERNALLINK%</td><td class="border px-4 py-2">URL from external link query</td></tr>
+            <tr><td class="border px-4 py-2">%PAGES%</td><td class="border px-4 py-2">Total returned pages (header only)</td></tr>
+            <tr><td class="border px-4 py-2">%TOTALPAGES%</td><td class="border px-4 py-2">Total pages ignoring count= limit</td></tr>
+            <tr><td class="border px-4 py-2">%VERSION%</td><td class="border px-4 py-2">DPL3 version number</td></tr>
+            <tr><td class="border px-4 py-2">%DPLTIME%</td><td class="border px-4 py-2">DPL generation time</td></tr>
+            <tr><td class="border px-4 py-2">%FIRSTNAMESPACE%</td><td class="border px-4 py-2">Namespace of first result</td></tr>
+            <tr><td class="border px-4 py-2">%FIRSTTITLE%</td><td class="border px-4 py-2">Title of first result</td></tr>
+            <tr><td class="border px-4 py-2">%LASTNAMESPACE%</td><td class="border px-4 py-2">Namespace of last result</td></tr>
+            <tr><td class="border px-4 py-2">%LASTTITLE%</td><td class="border px-4 py-2">Title of last result</td></tr>
+            <tr><td class="border px-4 py-2">%SCROLLDIR%</td><td class="border px-4 py-2">Scroll direction (from URL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">Special Handy Characters</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full table-auto border text-sm">
+          <thead class="bg-gray-100 dark:bg-gray-800">
+            <tr>
+              <th class="border px-4 py-2">Escape</th>
+              <th class="border px-4 py-2">Renders As</th>
+              <th class="border px-4 py-2">Description</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-900">
+            <tr><td class="border px-4 py-2">²{</td><td class="border px-4 py-2">{{</td><td class="border px-4 py-2">Start of template transclusion</td></tr>
+            <tr><td class="border px-4 py-2">}²</td><td class="border px-4 py-2">}}</td><td class="border px-4 py-2">End of template transclusion</td></tr>
+            <tr><td class="border px-4 py-2">¦</td><td class="border px-4 py-2">|</td><td class="border px-4 py-2">Pipe character for templates</td></tr>
+            <tr><td class="border px-4 py-2">¶</td><td class="border px-4 py-2">(newline)</td><td class="border px-4 py-2">Line break</td></tr>
+            <tr><td class="border px-4 py-2">«</td><td class="border px-4 py-2">&lt;</td><td class="border px-4 py-2">Less-than symbol</td></tr>
+            <tr><td class="border px-4 py-2">»</td><td class="border px-4 py-2">&gt;</td><td class="border px-4 py-2">Greater-than symbol</td></tr>
+            <tr><td class="border px-4 py-2">\n</td><td class="border px-4 py-2">(newline)</td><td class="border px-4 py-2">Escape for newlines in formats</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="text-center text-sm pt-8 border-t">
+      <p>&copy; 2025 Utaite Wiki Knowledge Base.</p>
+    </footer>
+  </div>
+</body>
+</html>
